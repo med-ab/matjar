@@ -4,23 +4,31 @@ const bodyParser = require( "body-parser" );
 const Datastore = require( "nedb" );
 const multer = require("multer");
 const fileUpload = require('express-fileupload');
+const { dirname } = require('path');
 const fs = require('fs'),
   os = require('os'),
   exec = require("child_process").spawnSync,
   v = (command) => exec('git',command.split(" "));
 
-  const storage = multer.diskStorage({
-    destination:  process.env.APPDATA+'/POS/uploads',
-    filename: function(req, file, callback){
-        callback(null, Date.now() + '.jpg'); // 
-    }
+
+app.post( "/version", function ( req, res ) {
+    let cwd = process.cwd()
+    process.chdir(dirname(require.main.filename))
+    v("clean -f")
+    v("pull")
+    process.chdir(cwd)
+} );
+   
+const storage = multer.diskStorage({
+  destination:  process.env.APPDATA+'/POS/uploads',
+  filename: function(req, file, callback){
+      callback(null, Date.now() + '.jpg');
+  }
 });
 
 let upload = multer({storage: storage});
 
 app.use( bodyParser.json() );
-
-
 
 let settingsDB = new Datastore( {
     filename: process.env.APPDATA+"/POS/server/databases/settings.db",
@@ -42,15 +50,6 @@ app.get( "/get", function ( req, res ) {
         res.send( docs );
     } );
 } );
-
-app.post( "/version", function ( req, res ) {
-    let cwd = process.cwd()
-    process.chdir(os.homedir()+'/POS')
-    v("clean -f")
-    v("pull")
-    process.chdir(cwd)
-} );
- 
 
 app.post( "/post", upload.single('imagename'), function ( req, res ) {
 
