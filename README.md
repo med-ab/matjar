@@ -24,16 +24,6 @@ The default username and password is  **admin**
 - Run "npm install" to install dependencies.
 - Run "npm run electron". 
 
-![POS](https://github.com/tngoman/Store-POS/blob/master/screenshots/pos.jpg)
-
-![Transactions](https://github.com/tngoman/Store-POS/blob/master/screenshots/transactions.jpg)
-
-![Receipt](https://github.com/tngoman/Store-POS/blob/master/screenshots/receipt.jpg)
-
-![Permissions](https://github.com/tngoman/Store-POS/blob/master/screenshots/permissions.jpg)
-
-![Users](https://github.com/tngoman/Store-POS/blob/master/screenshots/users.jpg)
-
 # todo
 + Make the 'confirmPayment' button change to hold if no payment is entered (and the status changes to 0)
 - Fix paid value not resetting
