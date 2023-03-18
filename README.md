@@ -19,11 +19,12 @@ The default username and password is  **admin**
 
 **To Customize/Create your own installer**
 
-- Clone this project.
-- Open terminal and navigate into the cloned folder.
-- Run "npm install" to install dependencies.
-- Run "npm run electron". 
-
+```sh
+git clone https://github.com/med-ab/matjar
+cd matjar
+npm install
+npm run electron 
+```
 # todo
 + Make the 'confirmPayment' button change to hold if no payment is entered (and the status changes to 0)
 - Fix paid value not resetting
