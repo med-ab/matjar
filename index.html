@@ -74,7 +74,7 @@
                              </div>
 
                             <button id="settings" data-toggle="modal" data-target="#settingsModal"  type="button"  class="btn btn-dark waves-effect waves-light p_five">
-                                <i class="glyphicon glyphicon-cog"></i>
+                                <i class="glyphicon glyphicon-cog"></i> <span class="update badge"></span>
                           </button>
                           
                             <button type="button"  class="btn btn-secondary waves-effect waves-light" id="cashier">
@@ -748,24 +748,28 @@
                     <div class="modal-body">
                         
                         <div class="row">
-                            <div class="col-md-6">
-                                 <div class="form-group">
-                                    <label for="app">Application</label>
-                                    <select name="app" id="app" class="form-control">
-                                        <option>Standalone Point of Sale</option>
-                                        <option>Network Point of Sale Terminal</option>
-                                        <option>Network Point of Sale Server</option>
-                                    </select>
+                                 <div class="row">
+                                     <div class="col-md-6">
+                                         <div class="form-group">
+                                            <label for="app">Application</label>
+                                            <select name="app" id="app" class="form-control">
+                                                <option>Standalone Point of Sale</option>
+                                                <option>Network Point of Sale Terminal</option>
+                                                <option>Network Point of Sale Server</option>
+                                            </select>
+                                         </div>
+                                     </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                    <label>Version </label> <span id='current' style="font-size: xx-small"></span><br>
+                                                    <form id="updates" class="input-group">
+                                                            <input type="text" style="border:none" class="form-control id="git" name="commands">
+                                                        </form>
+                                                    </div>
+                                            </div>
+                                        </div>
                                  </div>
-                            </div>
-                            <div class="col-md-6">
-                                    <div class="form-group">
-                                            <label>Version</label>
-                                            <input type="text" required="required"  name="symbol" class="form-control" id="version">
-                                     </div>                               
-                            </div>
                            
-                        </div>
                 <form id="net_settings_form">
                  <div class="row">
                     <div class="form-group">

@@ -1,89 +1,111 @@
-const app = require( "express")();
-const server = require( "http" ).Server( app );
-const bodyParser = require( "body-parser" );
-const Datastore = require( "nedb" );
+const app = require("express")();
+const server = require("http").Server(app);
+const bodyParser = require("body-parser");
+const Datastore = require("nedb");
 const multer = require("multer");
 const fileUpload = require('express-fileupload');
-const { dirname } = require('path');
 const fs = require('fs'),
+  {dirname} = require('path')
   os = require('os'),
   exec = require("child_process").spawnSync,
-  v = (command) => exec('git',command.split(" "));
+  v = (command) => 
+    exec('git', command.split(" ")).stdout.toString()?.trim();
 
+v("fetch")
 
-app.post( "/version", function ( req, res ) {
-    let cwd = process.cwd()
-    process.chdir(dirname(require.main.filename))
-    v("clean -f")
-    v("pull")
-    process.chdir(cwd)
-} );
-   
-const storage = multer.diskStorage({
-  destination:  process.env.APPDATA+'/POS/uploads',
-  filename: function(req, file, callback){
-      callback(null, Date.now() + '.jpg');
-  }
+app.get("/version", (req, res) => {
+    var {cwd,chdir} = process
+    chdir(dirname(require.main.filename))
+    var current = v("rev-parse HEAD")
+    var updates = v('log HEAD..origin/main') ?
+      v(`log HEAD..origin/main`).split('commit ').filter(String).map(commit => Object.assign({}, ...commit.split('\n').filter(String).map(o => o.trim()).map((o, i) =>
+          i == 0 ? { commit: o }
+        : i == 1 ? { [o.split(': ')[0]]: o.split(': ')[1] }
+        : i == 2 ? { [o.split(': ')[0]]: new Date(o.split(': ')[1]) }
+        : i == 3 ? { message: o }
+        : ''  )))
+      : []
+    console.log({current, updates})
+    res.type('json').send(JSON.stringify({current, updates}))
+    chdir(cwd())
 });
 
-let upload = multer({storage: storage});
+app.patch("/version", function (req, res) {
+    let cwd = process.cwd()
+    process.chdir(dirname(require.main.filename))
+    if (req.query.commands) { 
+        log(req.query.commands)
+        // req.query.commands.split(';').forEach(v)
+    }
+    res.sendStatus(200)
+    process.chdir(cwd)
+});
 
-app.use( bodyParser.json() );
+const storage = multer.diskStorage({
+    destination: process.env.APPDATA + '/POS/uploads',
+    filename: function (req, file, callback) {
+        callback(null, Date.now() + '.jpg');
+    }
+});
 
-let settingsDB = new Datastore( {
-    filename: process.env.APPDATA+"/POS/server/databases/settings.db",
+let upload = multer({ storage: storage });
+
+app.use(bodyParser.json());
+
+let settingsDB = new Datastore({
+    filename: process.env.APPDATA + "/POS/server/databases/settings.db",
     autoload: true
-} );
+});
 
 
 
-app.get( "/", function ( req, res ) {
-    res.send( "Settings API" );
-} );
+app.get("/", function (req, res) {
+    res.send("Settings API");
+});
 
 
-  
-app.get( "/get", function ( req, res ) {
-    settingsDB.findOne( {
+
+app.get("/get", function (req, res) {
+    settingsDB.findOne({
         _id: 1
-}, function ( err, docs ) {
-        res.send( docs );
-    } );
-} );
+    }, function (err, docs) {
+        res.send(docs);
+    });
+});
 
-app.post( "/post", upload.single('imagename'), function ( req, res ) {
+app.post("/post", upload.single('imagename'), function (req, res) {
 
     let image = '';
 
-    if(req.body.img != "") {
-        image = req.body.img;       
+    if (req.body.img != "") {
+        image = req.body.img;
     }
 
-    if(req.file) {
-        image = req.file.filename;  
+    if (req.file) {
+        image = req.file.filename;
     }
 
-    if(req.body.remove == 1) {
-        const path = process.env.APPDATA+"/POS/uploads/"+ req.body.img;
+    if (req.body.remove == 1) {
+        const path = process.env.APPDATA + "/POS/uploads/" + req.body.img;
         try {
-          fs.unlinkSync(path)
-        } catch(err) {
-          console.error(err)
+            fs.unlinkSync(path)
+        } catch (err) {
+            console.error(err)
         }
 
-        if(!req.file) {
+        if (!req.file) {
             image = '';
         }
-    } 
-    
-  
-    let Settings = {  
+    }
+
+
+    let Settings = {
         _id: 1,
         settings: {
             "app": req.body.app,
             "store": req.body.store,
             "address_one": req.body.address_one,
-            "address_two":req.body.address_two,
+            "address_two": req.body.address_two,
             "contact": req.body.contact,
             "tax": req.body.tax,
             "symbol": req.body.symbol,
@@ -91,30 +113,30 @@ app.post( "/post", upload.single('imagename'), function ( req, res ) {
             "charge_tax": req.body.charge_tax,
             "footer": req.body.footer,
             "img": image
-        }       
+        }
     }
 
-    if(req.body.id == "") { 
-        settingsDB.insert( Settings, function ( err, settings ) {
-            if ( err ) res.status( 500 ).send( err );
-            else res.send( settings );
+    if (req.body.id == "") {
+        settingsDB.insert(Settings, function (err, settings) {
+            if (err) res.status(500).send(err);
+            else res.send(settings);
         });
     }
-    else { 
-        settingsDB.update( {
+    else {
+        settingsDB.update({
             _id: 1
         }, Settings, {}, function (
             err,
             numReplaced,
             settings
         ) {
-            if ( err ) res.status( 500 ).send( err );
-            else res.sendStatus( 200 );
-        } );
+            if (err) res.status(500).send(err);
+            else res.sendStatus(200);
+        });
 
     }
 
 });
 
- 
+
 module.exports = app;

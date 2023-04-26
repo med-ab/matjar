@@ -71,6 +71,39 @@ let Alert = Swal.mixin({
   }
 })
 
+
+$("#updates").on('submit',function(event){
+    event.preventDefault();
+    $.ajax({
+            type:'PATCH',
+            url:api+'settings/version&'+$('#updates').serialize()
+    });
+    location.reload(true)
+});
+
+fetch(api+'settings/version').then(res=>res.json()).then(version=>{
+    $('#current').html(version.current)
+    if (version.updates.length == 0) return
+    else {
+        log(version)
+        $('#updates').prepend(/*xml*/`
+        <div class="input-group-btn">
+        <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="update"></span> <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+         ${version.updates.map(o=>`<li style='padding:2%;cursor:pointer' onclick="$('#git').attr('type','hidden').val('merge ${o.commit}');$('#updates').submit()">${o.Date}</li>`).join('\n')}
+        </ul>
+      </div>
+        </div>
+          `)
+        $('.update').html('UPDATE')
+
+
+    }
+})
+
+
 $(function () {
 
     function cb(start, end) {
