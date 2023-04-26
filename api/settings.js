@@ -11,9 +11,8 @@ const fs = require('fs'),
   v = (command) => 
     exec('git', command.split(" ")).stdout.toString()?.trim()
 
-v("fetch")
-
 app.get("/version", (req, res) => {
+    v("fetch")
     var {cwd,chdir} = process
     chdir(dirname(require.main.filename))
     var current = v("rev-parse HEAD")
