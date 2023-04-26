@@ -92,7 +92,7 @@ fetch(api+'settings/version').then(res=>res.json()).then(version=>{
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="update"></span> <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-         ${version.updates.map(o=>`<li style='padding:2%;cursor:pointer' onclick="$('#git').attr('type','hidden').val('merge ${o.commit}');$('#updates').submit()">${o.Date}</li>`).join('\n')}
+         ${version.updates.map(o=>`<li style='padding:2%;cursor:pointer' onclick="$('[name=commands]').attr('type','hidden').val('merge ${o.commit}');$('#updates').submit()">${o.Date}</li>`).join('\n')}
         </ul>
       </div>
         </div>
