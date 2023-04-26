@@ -1,11 +1,11 @@
-const app = require( "express" )();
-const server = require( "http" ).Server( app );
-const bodyParser = require( "body-parser" );
-const Datastore = require( "nedb" );
-const async = require( "async" );
-const fileUpload = require('express-fileupload');
-const multer = require("multer");
-const fs = require('fs');
+const app = require( "express" )()
+const server = require( "http" ).Server( app )
+const bodyParser = require( "body-parser" )
+const Datastore = require( "nedb" )
+const async = require( "async" )
+const fileUpload = require('express-fileupload')
+const multer = require("multer")
+const fs = require('fs')
 
 
 const storage = multer.diskStorage({
@@ -13,57 +13,57 @@ const storage = multer.diskStorage({
     filename: function(req, file, callback){
         callback(null, Date.now() + '.jpg'); // 
     }
-});
+})
 
 
-let upload = multer({storage: storage});
+let upload = multer({storage: storage})
 
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 
-module.exports = app;
+module.exports = app
 
  
 let inventoryDB = new Datastore( {
     filename: process.env.APPDATA+"/POS/server/databases/inventory.db",
     autoload: true
-} );
+} )
 
 
-inventoryDB.ensureIndex({ fieldName: '_id', unique: true });
+inventoryDB.ensureIndex({ fieldName: '_id', unique: true })
 
  
 app.get( "/", function ( req, res ) {
-    res.send( "Inventory API" );
-} );
+    res.send( "Inventory API" )
+} )
 
 
  
 app.get( "/product/:productId", function ( req, res ) {
     if ( !req.params.productId ) {
-        res.status( 500 ).send( "ID field is required." );
+        res.status( 500 ).send( "ID field is required." )
     } else {
         inventoryDB.findOne( {
             _id: Number(req.params.productId)
         }, function ( err, product ) {
-            res.send( product );
-        } );
+            res.send( product )
+        } )
     }
-} );
+} )
 
 
  
 app.get( "/products", function ( req, res ) {
     inventoryDB.find( {}, function ( err, docs ) {
-        res.send( docs );
-    } );
-} );
+        res.send( docs )
+    } )
+} )
 
 
  
 app.post( "/product", upload.single('imagename'), function ( req, res ) {
 
-    let image = '';
+    let image = ''
 
     if(req.body.img != "") {
         image = req.body.img;        
@@ -75,7 +75,7 @@ app.post( "/product", upload.single('imagename'), function ( req, res ) {
  
 
     if(req.body.remove == 1) {
-        const path = './resources/app/public/uploads/product_image/'+ req.body.img;
+        const path = './resources/app/public/uploads/product_image/'+ req.body.img
         try {
           fs.unlinkSync(path)
         } catch(err) {
@@ -83,7 +83,7 @@ app.post( "/product", upload.single('imagename'), function ( req, res ) {
         }
 
         if(!req.file) {
-            image = '';
+            image = ''
         }
     }
     
@@ -99,11 +99,11 @@ app.post( "/product", upload.single('imagename'), function ( req, res ) {
     }
 
     if(req.body.id == "") { 
-        Product._id = Math.floor(Date.now() / 1000);
+        Product._id = Math.floor(Date.now() / 1000)
         inventoryDB.insert( Product, function ( err, product ) {
-            if ( err ) res.status( 500 ).send( err );
-            else res.send( product );
-        });
+            if ( err ) res.status( 500 ).send( err )
+            else res.send( product )
+        })
     }
     else { 
         inventoryDB.update( {
@@ -113,13 +113,13 @@ app.post( "/product", upload.single('imagename'), function ( req, res ) {
             numReplaced,
             product
         ) {
-            if ( err ) res.status( 500 ).send( err );
-            else res.sendStatus( 200 );
-        } );
+            if ( err ) res.status( 500 ).send( err )
+            else res.sendStatus( 200 )
+        } )
 
     }
 
-});
+})
 
 
 
@@ -128,10 +128,10 @@ app.delete( "/product/:productId", function ( req, res ) {
     inventoryDB.remove( {
         _id: Number(req.params.productId)
     }, function ( err, numRemoved ) {
-        if ( err ) res.status( 500 ).send( err );
-        else res.sendStatus( 200 );
-    } );
-} );
+        if ( err ) res.status( 500 ).send( err )
+        else res.sendStatus( 200 )
+    } )
+} )
 
  
 
@@ -139,9 +139,9 @@ app.post( "/product/sku", function ( req, res ) {
     inventoryDB.findOne( {
             _id: Number(req.body.skuCode)
     }, function ( err, product ) {
-         res.send( product );
-    } );
-} );
+         res.send( product )
+    } )
+} )
 
  
 
@@ -157,11 +157,11 @@ app.decrementInventory = function ( products ) {
         ) {
     
             if ( !product || !product.quantity ) {
-                callback();
+                callback()
             } else {
                 let updatedQuantity =
                     Number( product.quantity) -
-                    Number( transactionProduct.quantity );
+                    Number( transactionProduct.quantity )
 
                 inventoryDB.update( {
                         _id: Number(product._id)
@@ -171,8 +171,8 @@ app.decrementInventory = function ( products ) {
                         }
                     }, {},
                     callback
-                );
+                )
             }
-        } );
-    } );
-};
+        } )
+    } )
+}

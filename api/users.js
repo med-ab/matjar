@@ -1,46 +1,46 @@
-const app = require( "express")();
-const server = require( "http" ).Server( app );
-const bodyParser = require( "body-parser" );
-const Datastore = require( "nedb" );
-const btoa = require('btoa');
-app.use( bodyParser.json() );
+const app = require( "express")()
+const server = require( "http" ).Server( app )
+const bodyParser = require( "body-parser" )
+const Datastore = require( "nedb" )
+const btoa = require('btoa')
+app.use( bodyParser.json() )
 
-module.exports = app;
+module.exports = app
 
  
 let usersDB = new Datastore( {
     filename: process.env.APPDATA+"/POS/server/databases/users.db",
     autoload: true
-} );
+} )
 
 
-usersDB.ensureIndex({ fieldName: '_id', unique: true });
+usersDB.ensureIndex({ fieldName: '_id', unique: true })
 
 
 app.get( "/", function ( req, res ) {
-    res.send( "Users API" );
-} );
+    res.send( "Users API" )
+} )
 
 
   
 app.get( "/user/:userId", function ( req, res ) {
     if ( !req.params.userId ) {
-        res.status( 500 ).send( "ID field is required." );
+        res.status( 500 ).send( "ID field is required." )
     }
     else{
     usersDB.findOne( {
         _id: parseInt(req.params.userId)
 }, function ( err, docs ) {
-        res.send( docs );
-    } );
+        res.send( docs )
+    } )
     }
-} );
+} )
 
 
 
 app.get( "/logout/:userId", function ( req, res ) {
     if ( !req.params.userId ) {
-        res.status( 500 ).send( "ID field is required." );
+        res.status( 500 ).send( "ID field is required." )
     }
     else{ usersDB.update( {
             _id: parseInt(req.params.userId)
@@ -49,12 +49,12 @@ app.get( "/logout/:userId", function ( req, res ) {
                 status: 'Logged Out_'+ new Date()
             }
         }, {},
-    );
+    )
 
-    res.sendStatus( 200 );
+    res.sendStatus( 200 )
  
     }
-});
+})
 
 
 
@@ -73,21 +73,21 @@ app.post( "/login", function ( req, res ) {
                 }
             }, {},
             
-        );
+        )
         }
-        res.send( docs );
-    } );
+        res.send( docs )
+    } )
     
-} );
+} )
 
 
 
 
 app.get( "/all", function ( req, res ) {
     usersDB.find( {}, function ( err, docs ) {
-        res.send( docs );
-    } );
-} );
+        res.send( docs )
+    } )
+} )
 
 
 
@@ -95,10 +95,10 @@ app.delete( "/user/:userId", function ( req, res ) {
     usersDB.remove( {
         _id: parseInt(req.params.userId)
     }, function ( err, numRemoved ) {
-        if ( err ) res.status( 500 ).send( err );
-        else res.sendStatus( 200 );
-    } );
-} );
+        if ( err ) res.status( 500 ).send( err )
+        else res.sendStatus( 200 )
+    } )
+} )
 
  
 app.post( "/post" , function ( req, res ) {   
@@ -115,11 +115,11 @@ app.post( "/post" , function ( req, res ) {
           }
 
     if(req.body.id == "") { 
-       User._id = Math.floor(Date.now() / 1000);
+       User._id = Math.floor(Date.now() / 1000)
        usersDB.insert( User, function ( err, user ) {
-            if ( err ) res.status( 500 ).send( req );
-            else res.send( user );
-        });
+            if ( err ) res.status( 500 ).send( req )
+            else res.send( user )
+        })
     }
     else { 
         usersDB.update( {
@@ -140,13 +140,13 @@ app.post( "/post" , function ( req, res ) {
             numReplaced,
             user
         ) {
-            if ( err ) res.status( 500 ).send( err );
-            else res.sendStatus( 200 );
-        } );
+            if ( err ) res.status( 500 ).send( err )
+            else res.sendStatus( 200 )
+        } )
 
     }
 
-});
+})
 
 
 app.get( "/check", function ( req, res ) {
@@ -167,8 +167,8 @@ app.get( "/check", function ( req, res ) {
                 "status": ""
               }
             usersDB.insert( User, function ( err, user ) {                            
-            });
+            })
         }
-    } );
-} );
+    } )
+} )
  

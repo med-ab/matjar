@@ -1,15 +1,15 @@
-const app = require("express")();
-const server = require("http").Server(app);
-const bodyParser = require("body-parser");
-const Datastore = require("nedb");
-const multer = require("multer");
-const fileUpload = require('express-fileupload');
+const app = require("express")()
+const server = require("http").Server(app)
+const bodyParser = require("body-parser")
+const Datastore = require("nedb")
+const multer = require("multer")
+const fileUpload = require('express-fileupload')
 const fs = require('fs'),
   {dirname} = require('path')
   os = require('os'),
   exec = require("child_process").spawnSync,
   v = (command) => 
-    exec('git', command.split(" ")).stdout.toString()?.trim();
+    exec('git', command.split(" ")).stdout.toString()?.trim()
 
 v("fetch")
 
@@ -28,7 +28,7 @@ app.get("/version", (req, res) => {
     console.log({current, updates})
     res.type('json').send(JSON.stringify({current, updates}))
     chdir(cwd())
-});
+})
 
 app.patch("/version", function (req, res) {
     let cwd = process.cwd()
@@ -39,29 +39,29 @@ app.patch("/version", function (req, res) {
     }
     res.sendStatus(200)
     process.chdir(cwd)
-});
+})
 
 const storage = multer.diskStorage({
     destination: process.env.APPDATA + '/POS/uploads',
     filename: function (req, file, callback) {
-        callback(null, Date.now() + '.jpg');
+        callback(null, Date.now() + '.jpg')
     }
-});
+})
 
-let upload = multer({ storage: storage });
+let upload = multer({ storage: storage })
 
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 let settingsDB = new Datastore({
     filename: process.env.APPDATA + "/POS/server/databases/settings.db",
     autoload: true
-});
+})
 
 
 
 app.get("/", function (req, res) {
-    res.send("Settings API");
-});
+    res.send("Settings API")
+})
 
 
 
@@ -69,24 +69,24 @@ app.get("/get", function (req, res) {
     settingsDB.findOne({
         _id: 1
     }, function (err, docs) {
-        res.send(docs);
-    });
-});
+        res.send(docs)
+    })
+})
 
 app.post("/post", upload.single('imagename'), function (req, res) {
 
-    let image = '';
+    let image = ''
 
     if (req.body.img != "") {
-        image = req.body.img;
+        image = req.body.img
     }
 
     if (req.file) {
-        image = req.file.filename;
+        image = req.file.filename
     }
 
     if (req.body.remove == 1) {
-        const path = process.env.APPDATA + "/POS/uploads/" + req.body.img;
+        const path = process.env.APPDATA + "/POS/uploads/" + req.body.img
         try {
             fs.unlinkSync(path)
         } catch (err) {
@@ -94,7 +94,7 @@ app.post("/post", upload.single('imagename'), function (req, res) {
         }
 
         if (!req.file) {
-            image = '';
+            image = ''
         }
     }
 
@@ -118,9 +118,9 @@ app.post("/post", upload.single('imagename'), function (req, res) {
 
     if (req.body.id == "") {
         settingsDB.insert(Settings, function (err, settings) {
-            if (err) res.status(500).send(err);
-            else res.send(settings);
-        });
+            if (err) res.status(500).send(err)
+            else res.send(settings)
+        })
     }
     else {
         settingsDB.update({
@@ -130,13 +130,13 @@ app.post("/post", upload.single('imagename'), function (req, res) {
             numReplaced,
             settings
         ) {
-            if (err) res.status(500).send(err);
-            else res.sendStatus(200);
-        });
+            if (err) res.status(500).send(err)
+            else res.sendStatus(200)
+        })
 
     }
 
-});
+})
 
 
-module.exports = app;
+module.exports = app

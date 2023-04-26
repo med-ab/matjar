@@ -1,13 +1,13 @@
 const setupEvents = require('./installers/setupEvents')
  if (setupEvents.handleSquirrelEvent()) {
-    return;
+    return
  }
  
-const server = require('./server');
-const {app, BrowserWindow, ipcMain} = require('electron');
+const server = require('./server')
+const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
 
-const contextMenu = require('electron-context-menu');
+const contextMenu = require('electron-context-menu')
 
 let mainWindow
 
@@ -23,10 +23,10 @@ function createWindow() {
       enableRemoteModule: true,
       contextIsolation: false
     },
-  });
+  })
 
-  mainWindow.maximize();
-  mainWindow.show();
+  mainWindow.maximize()
+  mainWindow.show()
 
   mainWindow.loadURL(
     `file://${path.join(__dirname, 'index.html')}`
@@ -60,8 +60,8 @@ ipcMain.on('app-quit', (evt, arg) => {
 
 
 ipcMain.on('app-reload', (event, arg) => {
-  mainWindow.reload();
-});
+  mainWindow.reload()
+})
 
 
 
@@ -70,23 +70,23 @@ contextMenu({
      
       {label: 'DevTools',
        click(item, focusedWindow){
-        focusedWindow.toggleDevTools();
+        focusedWindow.toggleDevTools()
       }
     },
      { 
       label: "Reload", 
         click() {
-          mainWindow.reload();
+          mainWindow.reload()
       } 
     // },
     // {  label: 'Quit',  click:  function(){
-    //    mainWindow.destroy();
-    //     mainWindow.quit();
+    //    mainWindow.destroy()
+    //     mainWindow.quit()
     // } 
   }  
   ],
 
-});
+})
 
  
 

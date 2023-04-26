@@ -1,66 +1,66 @@
-let log = console.log;
-let cart = [];
-let index = 0;
-let allUsers = [];
-let allProducts = [];
-let allCategories = [];
-let allTransactions = [];
-let sold = [];
-let state = [];
-let sold_items = [];
-let item;
-let auth;
-let holdOrder = 0;
-let vat = 0;
-let perms = null;
-let deleteId = 0;
-let paymentType = 0;
-let receipt = '';
-let totalVat = 0;
-let subTotal = 0;
-let method = '';
-let order_index = 0;
-let user_index = 0;
-let product_index = 0;
-let transaction_index;
-let host = 'localhost';
-let path = require('path');
-let port = '8001';
-let moment = require('moment');
-let Swal = require('sweetalert2');
-let { ipcRenderer, dialog } = require('electron');
-let dotInterval = setInterval(function () { $(".dot").text('.') }, 3000);
-let Store = require('electron-store');
-const remote = require('electron').remote;
-const app = remote.app;
-let img_path = app.getPath('appData') + '/POS/uploads/';
-let api = 'http://' + host + ':' + port + '/api/';
-let btoa = require('btoa');
-let { jsPDF } = require('jspdf');
-let html2canvas = require('html2canvas');
-let JsBarcode = require('jsbarcode');
-let macaddress = require('macaddress');
-let categories = [];
-let holdOrderList = [];
-let customerOrderList = [];
-let ownUserEdit = null;
-let totalPrice = 0;
-let orderTotal = 0;
-let auth_error = 'Incorrect username or password';
-let auth_empty = 'Please enter a username and password';
-let holdOrderlocation = $("#renderHoldOrders");
-let customerOrderLocation = $("#randerCustomerOrders");
-let storage = new Store();
-let settings;
-let platform;
-let user = {};
-let start = moment().startOf('month');
-let end = moment();
-let start_date = moment(start).toDate();
-let end_date = moment(end).toDate();
-let by_till = 0;
-let by_user = 0;
-let by_status = undefined;
+let log = console.log
+let cart = []
+let index = 0
+let allUsers = []
+let allProducts = []
+let allCategories = []
+let allTransactions = []
+let sold = []
+let state = []
+let sold_items = []
+let item
+let auth
+let holdOrder = 0
+let vat = 0
+let perms = null
+let deleteId = 0
+let paymentType = 0
+let receipt = ''
+let totalVat = 0
+let subTotal = 0
+let method = ''
+let order_index = 0
+let user_index = 0
+let product_index = 0
+let transaction_index
+let host = 'localhost'
+let path = require('path')
+let port = '8001'
+let moment = require('moment')
+let Swal = require('sweetalert2')
+let { ipcRenderer, dialog } = require('electron')
+let dotInterval = setInterval(function () { $(".dot").text('.') }, 3000)
+let Store = require('electron-store')
+const remote = require('electron').remote
+const app = remote.app
+let img_path = app.getPath('appData') + '/POS/uploads/'
+let api = 'http://' + host + ':' + port + '/api/'
+let btoa = require('btoa')
+let { jsPDF } = require('jspdf')
+let html2canvas = require('html2canvas')
+let JsBarcode = require('jsbarcode')
+let macaddress = require('macaddress')
+let categories = []
+let holdOrderList = []
+let customerOrderList = []
+let ownUserEdit = null
+let totalPrice = 0
+let orderTotal = 0
+let auth_error = 'Incorrect username or password'
+let auth_empty = 'Please enter a username and password'
+let holdOrderlocation = $("#renderHoldOrders")
+let customerOrderLocation = $("#randerCustomerOrders")
+let storage = new Store()
+let settings
+let platform
+let user = {}
+let start = moment().startOf('month')
+let end = moment()
+let start_date = moment(start).toDate()
+let end_date = moment(end).toDate()
+let by_till = 0
+let by_user = 0
+let by_status = undefined
 
 let Alert = Swal.mixin({
         showClass: {
@@ -73,13 +73,13 @@ let Alert = Swal.mixin({
 
 
 $("#updates").on('submit',function(event){
-    event.preventDefault();
+    event.preventDefault()
     $.ajax({
             type:'PATCH',
             url:api+'settings/version&'+$('#updates').serialize()
-    });
+    })
     location.reload(true)
-});
+})
 
 fetch(api+'settings/version').then(res=>res.json()).then(version=>{
     $('#current').html(version.current)
@@ -107,7 +107,7 @@ fetch(api+'settings/version').then(res=>res.json()).then(version=>{
 $(function () {
 
     function cb(start, end) {
-        $('#reportrange span').html(start.format('MMMM D, YYYY') + '  -  ' + end.format('MMMM D, YYYY'));
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + '  -  ' + end.format('MMMM D, YYYY'))
     }
 
     $('#reportrange').daterangepicker({
@@ -128,98 +128,98 @@ $(function () {
             'This Month': [moment().startOf('month'), moment()],
             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
         }
-    }, cb);
+    }, cb)
 
-    cb(start, end);
+    cb(start, end)
 
-});
+})
 
 
 $.fn.serializeObject = function () {
-    var o = {};
-    var a = this.serializeArray();
+    var o = {}
+    var a = this.serializeArray()
     $.each(a, function () {
         if (o[this.name]) {
             if (!o[this.name].push) {
-                o[this.name] = [o[this.name]];
+                o[this.name] = [o[this.name]]
             }
-            o[this.name].push(this.value || '');
+            o[this.name].push(this.value || '')
         } else {
-            o[this.name] = this.value || '';
+            o[this.name] = this.value || ''
         }
-    });
-    return o;
-};
+    })
+    return o
+}
 
 
-auth = storage.get('auth');
-user = storage.get('user');
+auth = storage.get('auth')
+user = storage.get('user')
 
 
 if (auth == undefined) {
-    $.get(api + 'users/check/', function (data) { });
-    $("#loading").show();
-    authenticate();
+    $.get(api + 'users/check/', function (data) { })
+    $("#loading").show()
+    authenticate()
 
 } else {
 
-    $('#loading').show();
+    $('#loading').show()
 
     setTimeout(function () {
-        $('#loading').hide();
-    }, 2000);
+        $('#loading').hide()
+    }, 2000)
 
-    platform = storage.get('settings');
+    platform = storage.get('settings')
 
     if (platform != undefined) {
 
         if (platform.app == 'Network Point of Sale Terminal') {
-            api = 'http://' + platform.ip + ':' + port + '/api/';
-            perms = true;
+            api = 'http://' + platform.ip + ':' + port + '/api/'
+            perms = true
         }
     }
 
     $.get(api + 'users/user/' + user._id, function (data) {
-        user = data;
-        $('#loggedin-user').text(user.fullname);
-    });
+        user = data
+        $('#loggedin-user').text(user.fullname)
+    })
 
 
     $.get(api + 'settings/get', function (data) {
-        settings = data.settings;
-    });
+        settings = data.settings
+    })
 
 
     $.get(api + 'users/all', function (users) {
-        allUsers = [...users];
-    });
+        allUsers = [...users]
+    })
 
 
 
     $(document).ready(function () {
 
-        $(".loading").hide();
+        $(".loading").hide()
 
-        loadCategories();
-        loadProducts();
-        loadCustomers();
+        loadCategories()
+        loadProducts()
+        loadCustomers()
 
 
         if (settings && settings.symbol) {
-            $(".payment_curr").text(settings.symbol);
+            $(".payment_curr").text(settings.symbol)
         }
 
 
         setTimeout(function () {
             if (settings == undefined && auth != undefined) {
-                $('#settingsModal').modal('show');
+                $('#settingsModal').modal('show')
             }
             else {
-                vat = Number(settings.percentage);
-                $("#taxInfo").text(settings.charge_tax ? vat : 0);
+                vat = Number(settings.percentage)
+                $("#taxInfo").text(settings.charge_tax ? vat : 0)
             }
 
-        }, 1500);
+        }, 1500)
 
 
 
@@ -227,34 +227,34 @@ if (auth == undefined) {
 
             setTimeout(function () {
                 if (settings == undefined && auth != undefined) {
-                    $('#settingsModal').modal('show');
+                    $('#settingsModal').modal('show')
                 }
-            }, 1000);
+            }, 1000)
 
-        });
+        })
 
 
-        if (0 == user.perm_products) { $(".p_one").hide() };
-        if (0 == user.perm_categories) { $(".p_two").hide() };
-        if (0 == user.perm_transactions) { $(".p_three").hide() };
-        if (0 == user.perm_users) { $(".p_four").hide() };
-        if (0 == user.perm_settings) { $(".p_five").hide() };
+        if (0 == user.perm_products) { $(".p_one").hide() }
+        if (0 == user.perm_categories) { $(".p_two").hide() }
+        if (0 == user.perm_transactions) { $(".p_three").hide() }
+        if (0 == user.perm_users) { $(".p_four").hide() }
+        if (0 == user.perm_settings) { $(".p_five").hide() }
 
         function loadProducts() {
 
             $.get(api + 'inventory/products', function (data) {
 
-                allProducts = [...data];
+                allProducts = [...data]
 
-                loadProductList();
+                loadProductList()
 
-                $('#parent').text('');
-                $('#categories').html(`<button type="button" id="all" class="btn btn-categories btn-white waves-effect waves-light">All</button> `);
+                $('#parent').text('')
+                $('#categories').html(`<button type="button" id="all" class="btn btn-categories btn-white waves-effect waves-light">All</button> `)
 
                 data.forEach(item => {
 
                     if (!categories.includes(item.category)) {
-                        categories.push(item.category);
+                        categories.push(item.category)
                     }
 
                     let item_info = `<div class="col-lg-2 box ${item.category}"
@@ -265,27 +265,27 @@ if (auth == undefined) {
                                         <div class="name" id="product_name"><span class='badge count' style=background:lightgrey>${item.stock == 1 ? item.quantity : 'N/A'}</span>  ${item.name}</div>
                                         <b data-plugin="counterup" class="text-default text-center">${item.price + settings.symbol}</b>
                             </div>
-                        </div>`;
-                    $('#parent').append(item_info);
-                });
+                        </div>`
+                    $('#parent').append(item_info)
+                })
 
                 categories.forEach(category =>
                     $('#categories').append(`<button type="button" id="${category}" class="btn btn-categories btn-white waves-effect waves-light">${allCategories.filter(ctg => ctg._id == category)[0].name}</button>`)
-                );
+                )
 
-            });
+            })
 
         }
 
         function loadCategories() {
             $.get(api + 'categories/all', function (data) {
-                allCategories = data;
-                loadCategoryList();
-                $('#category').html(`<option value="0">Select</option>`);
+                allCategories = data
+                loadCategoryList()
+                $('#category').html(`<option value="0">Select</option>`)
                 allCategories.forEach(category => {
-                    $('#category').append(`<option value="${category._id}">${category.name}</option>`);
-                });
-            });
+                    $('#category').append(`<option value="${category._id}">${category.name}</option>`)
+                })
+            })
         }
 
 
@@ -293,17 +293,17 @@ if (auth == undefined) {
 
             $.get(api + 'customers/all', function (customers) {
 
-                $('#customer').html(`<option value=0 selected>Walk in customer</option>`);
+                $('#customer').html(`<option value=0 selected>Walk in customer</option>`)
 
                 customers.forEach(cust => {
 
-                    let customer = `<option value='{"id": ${cust._id}, "name": "${cust.name}"}'>${cust.name}</option>`;
-                    $('#customer').append(customer);
-                });
+                    let customer = `<option value='{"id": ${cust._id}, "name": "${cust.name}"}'>${cust.name}</option>`
+                    $('#customer').append(customer)
+                })
 
-                //  $('#customer').chosen();
+                //  $('#customer').chosen()
 
-            });
+            })
 
         }
 
@@ -313,33 +313,33 @@ if (auth == undefined) {
             if (stock == 1) {
                 if (count > 0) {
                     $.get(api + 'inventory/product/' + id, function (data) {
-                        $(this).addProductToCart(data);
-                    });
+                        $(this).addProductToCart(data)
+                    })
                 }
                 else {
                     new Alert(
                         'Out of stock!',
                         'This item is currently unavailable',
                         'info'
-                    );
+                    )
                 }
             }
             else {
                 $.get(api + 'inventory/product/' + id, function (data) {
-                    $(this).addProductToCart(data);
-                });
+                    $(this).addProductToCart(data)
+                })
             }
 
-        };
+        }
 
 
         function barcodeSearch(e) {
 
-            e.preventDefault();
-            $("#basic-addon2").empty();
+            e.preventDefault()
+            $("#basic-addon2").empty()
             $("#basic-addon2").append(
                 $('<i>', { class: 'fa fa-spinner fa-spin' })
-            );
+            )
 
             let req = {
                 skuCode: $("#skuCode").val()
@@ -355,9 +355,9 @@ if (auth == undefined) {
                 success: function (data) {
 
                     if (data._id != undefined && data.quantity >= 1) {
-                        $(this).addProductToCart(data);
-                        $("#searchBarCode").get(0).reset();
-                        $("#basic-addon2").empty();
+                        $(this).addProductToCart(data)
+                        $("#searchBarCode").get(0).reset()
+                        $("#basic-addon2").empty()
                         $("#basic-addon2").append(
                             $('<i>', { class: 'fa fa-barcode' })
                         )
@@ -367,7 +367,7 @@ if (auth == undefined) {
                             'Out of stock!',
                             'This item is currently unavailable',
                             'info'
-                        );
+                        )
                     }
                     else {
 
@@ -375,10 +375,10 @@ if (auth == undefined) {
                             'Not Found!',
                             '<b>' + $("#skuCode").val() + '</b> is not a valid barcode!',
                             'warning'
-                        );
+                        )
 
-                        $("#searchBarCode").get(0).reset();
-                        $("#basic-addon2").empty();
+                        $("#searchBarCode").get(0).reset()
+                        $("#basic-addon2").empty()
                         $("#basic-addon2").append(
                             $('<i>', { class: 'fa fa-barcode' })
                         )
@@ -386,33 +386,33 @@ if (auth == undefined) {
 
                 }, error: function (data) {
                     if (data.status === 422) {
-                        $(this).showValidationError(data);
+                        $(this).showValidationError(data)
                         $("#basic-addon2").append(
                             $('<i>', { class: 'glyphicon glyphicon-remove' })
                         )
                     }
                     else if (data.status === 404) {
-                        $("#basic-addon2").empty();
+                        $("#basic-addon2").empty()
                         $("#basic-addon2").append(
                             $('<i>', { class: 'glyphicon glyphicon-remove' })
                         )
                     }
                     else {
-                        $(this).showServerError();
-                        $("#basic-addon2").empty();
+                        $(this).showServerError()
+                        $("#basic-addon2").empty()
                         $("#basic-addon2").append(
                             $('<i>', { class: 'glyphicon glyphicon-warning-sign' })
                         )
                     }
                 }
-            });
+            })
 
         }
 
 
         $("#searchBarCode").on('submit', function (e) {
-            barcodeSearch(e);
-        });
+            barcodeSearch(e)
+        })
         $('#switchBarcode').on('click', e => {
             $('#switchBarcode').toggleClass('active')
                 $('#searchBarCode,#search').toggle()
@@ -425,69 +425,69 @@ if (auth == undefined) {
                 sku: data.sku,
                 price: data.price,
                 quantity: 1
-            };
+            }
 
             if ($(this).isExist(item)) {
-                $(this).qtyIncrement(index);
+                $(this).qtyIncrement(index)
             } else {
-                cart.push(item);
+                cart.push(item)
                 $(this).renderTable(cart)
             }
         }
 
 
         $.fn.isExist = function (data) {
-            let toReturn = false;
+            let toReturn = false
             $.each(cart, function (index, value) {
                 if (value.id == data.id) {
-                    $(this).setIndex(index);
-                    toReturn = true;
+                    $(this).setIndex(index)
+                    toReturn = true
                 }
-            });
-            return toReturn;
+            })
+            return toReturn
         }
 
 
         $.fn.setIndex = function (value) {
-            index = value;
+            index = value
         }
 
 
         $.fn.calculateCart = function () {
-            let total = 0;
-            let grossTotal;
-            $('#total').text(cart.length);
+            let total = 0
+            let grossTotal
+            $('#total').text(cart.length)
             $.each(cart, function (index, data) {
-                total += data.quantity * data.price;
-            });
-            $('#price').text(total + settings.symbol);
+                total += data.quantity * data.price
+            })
+            $('#price').text(total + settings.symbol)
 
-            subTotal = total;
+            subTotal = total
 
             if ($("#inputDiscount").val() >= total) {
-                $("#inputDiscount").val(0);
+                $("#inputDiscount").val(0)
             }
 
             if (settings.charge_tax) {
-                totalVat = ((total * vat) / 100);
+                totalVat = ((total * vat) / 100)
                 grossTotal = total + totalVat - $("#inputDiscount").val()
             }
 
             else {
-                grossTotal = total - $("#inputDiscount").val();
+                grossTotal = total - $("#inputDiscount").val()
             }
 
-            orderTotal = grossTotal;
+            orderTotal = grossTotal
 
-            $("#gross_price").text(grossTotal + settings.symbol);
-            $("#payablePrice").val(grossTotal);
-        };
+            $("#gross_price").text(grossTotal + settings.symbol)
+            $("#payablePrice").val(grossTotal)
+        }
 
 
 
         $.fn.renderTable = function (cartList) {
-            $('#cartTable > tbody').empty();
-            $(this).calculateCart();
+            $('#cartTable > tbody').empty()
+            $(this).calculateCart()
             $.each(cartList, function (index, data) {
                 $('#cartTable > tbody').append(
                     $('<tr>').append(
@@ -515,28 +515,28 @@ if (auth == undefined) {
                     )
                 )
             })
-        };
+        }
 
 
         $.fn.deleteFromCart = function (index) {
-            cart.splice(index, 1);
-            $(this).renderTable(cart);
+            cart.splice(index, 1)
+            $(this).renderTable(cart)
 
         }
 
 
         $.fn.qtyIncrement = function (i) {
 
-            item = cart[i];
+            item = cart[i]
 
             let product = allProducts.filter(function (selected) {
-                return selected._id == parseInt(item.id);
-            });
+                return selected._id == parseInt(item.id)
+            })
 
             if (product[0].stock == 1) {
                 if (item.quantity < product[0].quantity) {
-                    item.quantity += 1;
-                    $(this).renderTable(cart);
+                    item.quantity += 1
+                    $(this).renderTable(cart)
                 }
 
                 else {
@@ -544,12 +544,12 @@ if (auth == undefined) {
                         'No more stock!',
                         'You have already added all the available stock.',
                         'info'
-                    );
+                    )
                 }
             }
             else {
-                item.quantity += 1;
-                $(this).renderTable(cart);
+                item.quantity += 1
+                $(this).renderTable(cart)
             }
 
         }
@@ -557,17 +557,17 @@ if (auth == undefined) {
 
         $.fn.qtyDecrement = function (i) {
             if (item.quantity > 1) {
-                item = cart[i];
-                item.quantity -= 1;
-                $(this).renderTable(cart);
+                item = cart[i]
+                item.quantity -= 1
+                $(this).renderTable(cart)
             }
         }
 
 
         $.fn.qtyInput = function (i) {
-            item = cart[i];
-            item.quantity = $(this).val();
-            $(this).renderTable(cart);
+            item = cart[i]
+            item.quantity = $(this).val()
+            $(this).renderTable(cart)
         }
 
 
@@ -586,9 +586,9 @@ if (auth == undefined) {
 
                     if (result.value) {
 
-                        cart = [];
-                        $(this).renderTable(cart);
-                        holdOrder = 0;
+                        cart = []
+                        $(this).renderTable(cart)
+                        holdOrder = 0
 
                         new Alert(
                             'Cleared!',
@@ -596,7 +596,7 @@ if (auth == undefined) {
                             'success'
                         )
                     }
-                });
+                })
             }
 
         }
@@ -604,71 +604,71 @@ if (auth == undefined) {
 
         $("#payButton").on('click', function () {
             if (cart.length != 0) {
-                $("#paymentModal").modal('toggle');
+                $("#paymentModal").modal('toggle')
             } else {
                 new Alert(
                     'Oops!',
                     'There is nothing to pay!',
                     'warning'
-                );
+                )
             }
 
-        });
+        })
 
 
         $("#hold").on('click', function () {
 
             if (cart.length != 0) {
 
-                $("#dueModal").modal('toggle');
+                $("#dueModal").modal('toggle')
             } else {
                 new Alert(
                     'Oops!',
                     'There is nothing to hold!',
                     'warning'
-                );
+                )
             }
-        });
+        })
 
 
         function printJobComplete() {
-            alert("print job complete");
+            alert("print job complete")
         }
 
 
         $.fn.submitDueOrder = function (status) {
 
-            let items = "";
-            let payment = 0;
+            let items = ""
+            let payment = 0
 
             cart.forEach(item => {
 
-                items += "<tr><td>" + item.product_name + "</td><td>" + item.quantity + "</td><td>" + Number(item.price) + settings.symbol + "</td></tr>";
+                items += "<tr><td>" + item.product_name + "</td><td>" + item.quantity + "</td><td>" + Number(item.price) + settings.symbol + "</td></tr>"
 
-            });
+            })
 
-            let currentTime = new Date(moment());
+            let currentTime = new Date(moment())
 
-            let discount = $("#inputDiscount").val();
-            let customer = $("#customer").val();
-            let date = moment(currentTime).format("YYYY-MM-DD HH:mm:ss");
-            let paid = Number($("#payment").val()) + Number($('#paid').text());
-            let change = $("#change").text() == '0' ? 0 : Number($("#change").text());
-            let refNumber = $("#refNumber").val();
-            let orderNumber = holdOrder;
-            let type = "";
-            let tax_row = "";
+            let discount = $("#inputDiscount").val()
+            let customer = $("#customer").val()
+            let date = moment(currentTime).format("YYYY-MM-DD HH:mm:ss")
+            let paid = Number($("#payment").val()) + Number($('#paid').text())
+            let change = $("#change").text() == '0' ? 0 : Number($("#change").text())
+            let refNumber = $("#refNumber").val()
+            let orderNumber = holdOrder
+            let type = ""
+            let tax_row = ""
 
 
             switch (paymentType) {
 
-                case 1: type = "Cheque";
-                    break;
+                case 1: type = "Cheque"
+                    break
 
-                case 2: type = "Card";
-                    break;
+                case 2: type = "Card"
+                    break
 
-                default: type = "Cash";
+                default: type = "Cash"
 
             }
 
@@ -698,7 +698,7 @@ if (auth == undefined) {
                     <td>Vat(${settings.percentage})% </td>
                     <td>:</td>
                     <td>${Number(totalVat)}${settings.symbol}</td>
-                </tr>`;
+                </tr>`
             }
 
 
@@ -710,21 +710,21 @@ if (auth == undefined) {
                         'Reference Required!',
                         'You either need to select a customer <br> or enter a reference!',
                         'warning' )
-                    return;
+                    return
                 }
             }
 
 
-            $(".loading").show();
+            $(".loading").show()
 
 
             if (holdOrder != 0) {
 
-                orderNumber = holdOrder;
+                orderNumber = holdOrder
                 method = 'PUT'
             }
             else {
-                orderNumber = Math.floor(Date.now() / 1000);
+                orderNumber = Math.floor(Date.now() / 1000)
                 method = 'POST'
             }
 
@@ -789,22 +789,22 @@ if (auth == undefined) {
             <p style="text-align: center;">
              ${settings.footer}
              </p>
-            </div>`;
+            </div>`
 
 
             if (status == 3) {
                 if (cart.length > 0) {
 
-                    printJS({ printable: receipt, type: 'raw-html' });
+                    printJS({ printable: receipt, type: 'raw-html' })
 
-                    $(".loading").hide();
-                    return;
+                    $(".loading").hide()
+                    return
 
                 }
                 else {
 
-                    $(".loading").hide();
-                    return;
+                    $(".loading").hide()
+                    return
                 }
             }
 
@@ -842,56 +842,56 @@ if (auth == undefined) {
                 processData: false,
                 success: function (data) {
 
-                    cart = [];
-                    $('#viewTransaction').html('');
-                    $('#viewTransaction').html(receipt);
-                    $('#orderModal').modal('show');
-                    loadProducts();
-                    loadCustomers();
-                    $(".loading").hide();
-                    $("#dueModal").modal('hide');
-                    $("#paymentModal").modal('hide');
-                    $(this).getHoldOrders();
-                    $(this).getCustomerOrders();
-                    $(this).renderTable(cart);
+                    cart = []
+                    $('#viewTransaction').html('')
+                    $('#viewTransaction').html(receipt)
+                    $('#orderModal').modal('show')
+                    loadProducts()
+                    loadCustomers()
+                    $(".loading").hide()
+                    $("#dueModal").modal('hide')
+                    $("#paymentModal").modal('hide')
+                    $(this).getHoldOrders()
+                    $(this).getCustomerOrders()
+                    $(this).renderTable(cart)
 
                 }, error: function (data) {
-                    $(".loading").hide();
-                    $("#dueModal").modal('toggle');
-                    Alert("Something went wrong!", 'Please refresh this page and try again');
+                    $(".loading").hide()
+                    $("#dueModal").modal('toggle')
+                    Alert("Something went wrong!", 'Please refresh this page and try again')
 
                 }
-            });
+            })
 
-            $("#refNumber").val('');
-            $("#change").text('0');
-            $("#payment").val('');
-            $('paid').val('0');
+            $("#refNumber").val('')
+            $("#change").text('0')
+            $("#payment").val('')
+            $('paid').val('0')
 
         }
 
 
         $.get(api + 'on-hold', function (data) {
-            holdOrderList = data;
-            holdOrderlocation.empty();
-            clearInterval(dotInterval);
-            $(this).renderHoldOrders(holdOrderList, holdOrderlocation, 1);
-        });
+            holdOrderList = data
+            holdOrderlocation.empty()
+            clearInterval(dotInterval)
+            $(this).renderHoldOrders(holdOrderList, holdOrderlocation, 1)
+        })
 
 
         $.fn.getHoldOrders = function () {
             $.get(api + 'on-hold', function (data) {
-                holdOrderList = data;
-                clearInterval(dotInterval);
-                holdOrderlocation.empty();
-                $(this).renderHoldOrders(holdOrderList, holdOrderlocation, 1);
-            });
-        };
+                holdOrderList = data
+                clearInterval(dotInterval)
+                holdOrderlocation.empty()
+                $(this).renderHoldOrders(holdOrderList, holdOrderlocation, 1)
+            })
+        }
 
 
         $.fn.renderHoldOrders = function (data, renderLocation, orderType) {
             $.each(data, function (index, order) {
-                $(this).calculatePrice(order);
+                $(this).calculatePrice(order)
                 renderLocation.append(
                     $('<div>', { class: orderType == 1 ? 'col-md-3 order' : 'col-md-3 customer-order' }).append(
                         $('<a>').append(
@@ -925,36 +925,36 @@ if (auth == undefined) {
 
 
         $.fn.calculatePrice = function (data) {
-            totalPrice = 0;
+            totalPrice = 0
             $.each(data.products, function (index, product) {
-                totalPrice += product.price * product.quantity;
+                totalPrice += product.price * product.quantity
             })
 
-            let vat = (totalPrice * data.vat) / 100;
-            totalPrice = ((totalPrice + vat) - data.discount).toFixed(0);
+            let vat = (totalPrice * data.vat) / 100
+            totalPrice = ((totalPrice + vat) - data.discount).toFixed(0)
 
-            return totalPrice;
-        };
+            return totalPrice
+        }
 
 
         $.fn.orderDetails = function (index, orderType) {
 
-            $('#refNumber').val('');
+            $('#refNumber').val('')
 
             if (orderType == 1) {
 
-                $('#refNumber').val(holdOrderList[index].ref_number);
+                $('#refNumber').val(holdOrderList[index].ref_number)
                 $('#paid').text(holdOrderList[index].paid)
                 $('#change').text(holdOrderList[index].change)
                 
-                $("#customer option:selected").removeAttr('selected');
+                $("#customer option:selected").removeAttr('selected')
 
                 $("#customer option").filter(function () {
-                    return $(this).text() == "Walk in customer";
-                }).prop("selected", true);
+                    return $(this).text() == "Walk in customer"
+                }).prop("selected", true)
 
-                holdOrder = holdOrderList[index]._id;
-                cart = [];
+                holdOrder = holdOrderList[index]._id
+                cart = []
                 $.each(holdOrderList[index].items, function (index, product) {
                     item = {
                         id: product.id,
@@ -962,23 +962,23 @@ if (auth == undefined) {
                         sku: product.sku,
                         price: product.price,
                         quantity: product.quantity
-                    };
-                    cart.push(item);
+                    }
+                    cart.push(item)
                 })
             } else if (orderType == 2) {
 
-                $('#refNumber').val('');
+                $('#refNumber').val('')
                 $('#change').text(customerOrderList[index].change)
 
-                $("#customer option:selected").removeAttr('selected');
+                $("#customer option:selected").removeAttr('selected')
 
                 $("#customer option").filter(function () {
-                    return $(this).text() == customerOrderList[index].customer.name;
-                }).prop("selected", true);
+                    return $(this).text() == customerOrderList[index].customer.name
+                }).prop("selected", true)
 
 
-                holdOrder = customerOrderList[index]._id;
-                cart = [];
+                holdOrder = customerOrderList[index]._id
+                cart = []
                 $.each(customerOrderList[index].items, function (index, product) {
                     item = {
                         id: product.id,
@@ -986,22 +986,22 @@ if (auth == undefined) {
                         sku: product.sku,
                         price: product.price,
                         quantity: product.quantity
-                    };
-                    cart.push(item);
+                    }
+                    cart.push(item)
                 })
             }
-            $(this).renderTable(cart);
-            $("#holdOrdersModal").modal('hide');
-            $("#customerModal").modal('hide');
+            $(this).renderTable(cart)
+            $("#holdOrdersModal").modal('hide')
+            $("#customerModal").modal('hide')
         }
 
 
         $.fn.deleteOrder = function (index, type) {
 
             switch (type) {
-                case 1: deleteId = holdOrderList[index]._id;
-                    break;
-                case 2: deleteId = customerOrderList[index]._id;
+                case 1: deleteId = holdOrderList[index]._id
+                    break
+                case 2: deleteId = customerOrderList[index]._id
             }
 
             let data = {
@@ -1028,8 +1028,8 @@ if (auth == undefined) {
                         cache: false,
                         success: function (data) {
 
-                            $(this).getHoldOrders();
-                            $(this).getCustomerOrders();
+                            $(this).getHoldOrders()
+                            $(this).getCustomerOrders()
 
                             new Alert(
                                 'Deleted!',
@@ -1038,30 +1038,30 @@ if (auth == undefined) {
                             )
 
                         }, error: function (data) {
-                            $(".loading").hide();
+                            $(".loading").hide()
 
                         }
-                    });
+                    })
                 }
-            });
+            })
         }
 
 
 
         $.fn.getCustomerOrders = function () {
             $.get(api + 'customer-orders', function (data) {
-                clearInterval(dotInterval);
-                customerOrderList = data;
-                customerOrderLocation.empty();
-                $(this).renderHoldOrders(customerOrderList, customerOrderLocation, 2);
-            });
+                clearInterval(dotInterval)
+                customerOrderList = data
+                customerOrderLocation.empty()
+                $(this).renderHoldOrders(customerOrderList, customerOrderLocation, 2)
+            })
         }
 
 
 
         $('#saveCustomer').on('submit', function (e) {
 
-            e.preventDefault();
+            e.preventDefault()
 
             let custData = {
                 _id: Math.floor(Date.now() / 1000),
@@ -1079,98 +1079,98 @@ if (auth == undefined) {
                 cache: false,
                 processData: false,
                 success: function (data) {
-                    $("#newCustomer").modal('hide');
-                    new Alert("Customer added!", "Customer added successfully!", "success");
-                    $("#customer option:selected").removeAttr('selected');
+                    $("#newCustomer").modal('hide')
+                    new Alert("Customer added!", "Customer added successfully!", "success")
+                    $("#customer option:selected").removeAttr('selected')
                     $('#customer').append(
                         $('<option>', { text: custData.name, value: `{"id": ${custData._id}, "name": ${custData.name}}`, selected: 'selected' })
-                    );
+                    )
 
-                    $('#customer').val(`{"id": ${custData._id}, "name": ${custData.name}}`).trigger('chosen:updated');
+                    $('#customer').val(`{"id": ${custData._id}, "name": ${custData.name}}`).trigger('chosen:updated')
 
                 }, error: function (data) {
-                    $("#newCustomer").modal('hide');
+                    $("#newCustomer").modal('hide')
                     new Alert('Error', 'Something went wrong please try again', 'error')
                 }
             })
         })
 
-        $("#cardInfo").hide();
+        $("#cardInfo").hide()
 
         $("#payment").on('input', function () {
             if ($(this).val() > 0) {
-                $('#confirmPayment').text('Confirm Payment').removeClass('btn-warning').addClass('btn-default');
+                $('#confirmPayment').text('Confirm Payment').removeClass('btn-warning').addClass('btn-default')
             } else {
-                $('#confirmPayment').text('Hold Order').removeClass('btn-default').addClass('btn-warning');
-            };
-            $(this).calculateChange();
-        });
+                $('#confirmPayment').text('Hold Order').removeClass('btn-default').addClass('btn-warning')
+            }
+            $(this).calculateChange()
+        })
 
 
         $('#confirmPayment').on('click', function () {
             if (Number($('#change').text()) > 0 ) {
-                $(this).submitDueOrder(0);
+                $(this).submitDueOrder(0)
             }
             else {
-                $(this).submitDueOrder(1);
+                $(this).submitDueOrder(1)
             }
-        });
+        })
 
 
         $('#transactions').click(function () {
-            loadTransactions();
-            loadUserList();
+            loadTransactions()
+            loadUserList()
 
-            $('#pos_view').hide();
-            $('#pointofsale').show();
-            $('#transactions_view').show();
-            $(this).hide();
+            $('#pos_view').hide()
+            $('#pointofsale').show()
+            $('#transactions_view').show()
+            $(this).hide()
 
-        });
+        })
 
 
         $('#pointofsale').click(function () {
-            $('#pos_view').show();
-            $('#transactions').show();
-            $('#transactions_view').hide();
-            $(this).hide();
-        });
+            $('#pos_view').show()
+            $('#transactions').show()
+            $('#transactions_view').hide()
+            $(this).hide()
+        })
 
 
         $("#viewRefOrders").click(function () {
             setTimeout(function () {
-                $("#holdOrderInput").focus();
-            }, 1000);
-        });
+                $("#holdOrderInput").focus()
+            }, 1000)
+        })
 
 
         $("#viewCustomerOrders").click(function () {
             setTimeout(function () {
-                $("#holdCustomerOrderInput").focus();
-            }, 1000);
-        });
+                $("#holdCustomerOrderInput").focus()
+            }, 1000)
+        })
 
 
         $('#newProductModal').click(function () {
-            $('#saveProduct').get(0).reset();
-            $('#current_img').text('');
-        });
+            $('#saveProduct').get(0).reset()
+            $('#current_img').text('')
+        })
 
 
         $('#saveProduct').submit(function (e) {
-            e.preventDefault();
+            e.preventDefault()
 
-            $(this).attr('action', api + 'inventory/product');
-            $(this).attr('method', 'POST');
+            $(this).attr('action', api + 'inventory/product')
+            $(this).attr('method', 'POST')
 
             $(this).ajaxSubmit({
                 contentType: 'application/json',
                 success: function (response) {
 
-                    $('#saveProduct').get(0).reset();
-                    $('#current_img').text('');
+                    $('#saveProduct').get(0).reset()
+                    $('#current_img').text('')
 
-                    loadProducts();
+                    loadProducts()
                     new Alert({
                         title: 'Product Saved',
                         text: "Select an option below to continue.",
@@ -1183,26 +1183,26 @@ if (auth == undefined) {
                     }).then((result) => {
 
                         if (!result.value) {
-                            $("#newProduct").modal('hide');
+                            $("#newProduct").modal('hide')
                         }
-                    });
+                    })
                 }, error: function (data) {
-                    console.log(data);
+                    console.log(data)
                 }
-            });
+            })
 
-        });
+        })
 
 
 
         $('#saveCategory').submit(function (e) {
-            e.preventDefault();
+            e.preventDefault()
 
             if ($('#category_id').val() == "") {
-                method = 'POST';
+                method = 'POST'
             }
             else {
-                method = 'PUT';
+                method = 'PUT'
             }
 
             $.ajax({
@@ -1210,9 +1210,9 @@ if (auth == undefined) {
                 url: api + 'categories/category',
                 data: $(this).serialize(),
                 success: function (data, textStatus, jqXHR) {
-                    $('#saveCategory').get(0).reset();
-                    loadCategories();
-                    loadProducts();
+                    $('#saveCategory').get(0).reset()
+                    loadCategories()
+                    loadProducts()
                     new Alert({
                         title: 'Category Saved',
                         text: "Select an option below to continue.",
@@ -1225,111 +1225,111 @@ if (auth == undefined) {
                     }).then((result) => {
 
                         if (!result.value) {
-                            $("#newCategory").modal('hide');
+                            $("#newCategory").modal('hide')
                         }
-                    });
+                    })
                 }, error: function (data) {
-                    console.log(data);
+                    console.log(data)
                 }
 
-            });
+            })
 
 
-        });
+        })
 
 
         $.fn.editProduct = function (index) {
 
-            $('#Products').modal('hide');
+            $('#Products').modal('hide')
 
             $("#category option").filter(function () {
-                return $(this).val() == allProducts[index].category;
-            }).prop("selected", true);
+                return $(this).val() == allProducts[index].category
+            }).prop("selected", true)
 
-            $('#productName').val(allProducts[index].name);
-            $('#product_price').val(allProducts[index].price);
-            $('#quantity').val(allProducts[index].quantity);
+            $('#productName').val(allProducts[index].name)
+            $('#product_price').val(allProducts[index].price)
+            $('#quantity').val(allProducts[index].quantity)
 
-            $('#product_id').val(allProducts[index]._id);
-            $('#img').val(allProducts[index].img);
+            $('#product_id').val(allProducts[index]._id)
+            $('#img').val(allProducts[index].img)
 
             if (allProducts[index].img != "") {
 
-                $('#imagename').hide();
-                $('#current_img').html(`<img src="${img_path + allProducts[index].img}" alt="">`);
-                $('#rmv_img').show();
+                $('#imagename').hide()
+                $('#current_img').html(`<img src="${img_path + allProducts[index].img}" alt="">`)
+                $('#rmv_img').show()
             }
 
             if (allProducts[index].stock == 0) {
-                $('#stock').prop("checked", true);
+                $('#stock').prop("checked", true)
             }
 
-            $('#newProduct').modal('show');
+            $('#newProduct').modal('show')
         }
 
 
         $("#userModal").on("hide.bs.modal", function () {
-            $('.perms').hide();
-        });
+            $('.perms').hide()
+        })
 
 
         $.fn.editUser = function (index) {
 
-            user_index = index;
+            user_index = index
 
-            $('#Users').modal('hide');
+            $('#Users').modal('hide')
 
-            $('.perms').show();
+            $('.perms').show()
 
-            $("#user_id").val(allUsers[index]._id);
-            $('#fullname').val(allUsers[index].fullname);
-            $('#username').val(allUsers[index].username);
-            $('#password').val(atob(allUsers[index].password));
+            $("#user_id").val(allUsers[index]._id)
+            $('#fullname').val(allUsers[index].fullname)
+            $('#username').val(allUsers[index].username)
+            $('#password').val(atob(allUsers[index].password))
 
             if (allUsers[index].perm_products == 1) {
-                $('#perm_products').prop("checked", true);
+                $('#perm_products').prop("checked", true)
             }
             else {
-                $('#perm_products').prop("checked", false);
+                $('#perm_products').prop("checked", false)
             }
 
             if (allUsers[index].perm_categories == 1) {
-                $('#perm_categories').prop("checked", true);
+                $('#perm_categories').prop("checked", true)
             }
             else {
-                $('#perm_categories').prop("checked", false);
+                $('#perm_categories').prop("checked", false)
             }
 
             if (allUsers[index].perm_transactions == 1) {
-                $('#perm_transactions').prop("checked", true);
+                $('#perm_transactions').prop("checked", true)
             }
             else {
-                $('#perm_transactions').prop("checked", false);
+                $('#perm_transactions').prop("checked", false)
             }
 
             if (allUsers[index].perm_users == 1) {
-                $('#perm_users').prop("checked", true);
+                $('#perm_users').prop("checked", true)
             }
             else {
-                $('#perm_users').prop("checked", false);
+                $('#perm_users').prop("checked", false)
             }
 
             if (allUsers[index].perm_settings == 1) {
-                $('#perm_settings').prop("checked", true);
+                $('#perm_settings').prop("checked", true)
             }
             else {
-                $('#perm_settings').prop("checked", false);
+                $('#perm_settings').prop("checked", false)
             }
 
-            $('#userModal').modal('show');
+            $('#userModal').modal('show')
         }
 
 
         $.fn.editCategory = function (index) {
-            $('#Categories').modal('hide');
-            $('#categoryName').val(allCategories[index].name);
-            $('#category_id').val(allCategories[index]._id);
-            $('#newCategory').modal('show');
+            $('#Categories').modal('hide')
+            $('#categoryName').val(allCategories[index].name)
+            $('#category_id').val(allCategories[index]._id)
+            $('#newCategory').modal('show')
         }
 
 
@@ -1350,17 +1350,17 @@ if (auth == undefined) {
                         url: api + 'inventory/product/' + id,
                         type: 'DELETE',
                         success: function (result) {
-                            loadProducts();
+                            loadProducts()
                             new Alert(
                                 'Done!',
                                 'Product deleted',
                                 'success'
-                            );
+                            )
 
                         }
-                    });
+                    })
                 }
-            });
+            })
         }
 
 
@@ -1381,17 +1381,17 @@ if (auth == undefined) {
                         url: api + 'users/user/' + id,
                         type: 'DELETE',
                         success: function (result) {
-                            loadUserList();
+                            loadUserList()
                             new Alert(
                                 'Done!',
                                 'User deleted',
                                 'success'
-                            );
+                            )
 
                         }
-                    });
+                    })
                 }
-            });
+            })
         }
 
 
@@ -1412,74 +1412,74 @@ if (auth == undefined) {
                         url: api + 'categories/category/' + id,
                         type: 'DELETE',
                         success: function (result) {
-                            loadCategories();
+                            loadCategories()
                             new Alert(
                                 'Done!',
                                 'Category deleted',
                                 'success'
-                            );
+                            )
 
                         }
-                    });
+                    })
                 }
-            });
+            })
         }
 
 
         $('#productModal').click(function () {
-            loadProductList();
-        });
+            loadProductList()
+        })
 
 
         $('#usersModal').click(function () {
-            loadUserList();
-        });
+            loadUserList()
+        })
 
 
         $('#categoryModal').click(function () {
-            loadCategoryList();
-        });
+            loadCategoryList()
+        })
 
 
         function loadUserList() {
 
-            let counter = 0;
-            let user_list = '';
-            $('#user_list').empty();
-            $('#userList').DataTable().destroy();
+            let counter = 0
+            let user_list = ''
+            $('#user_list').empty()
+            $('#userList').DataTable().destroy()
 
             $.get(api + 'users/all', function (users) {
 
 
 
-                allUsers = [...users];
+                allUsers = [...users]
 
                 users.forEach((user, index) => {
 
-                    state = [];
-                    let class_name = '';
+                    state = []
+                    let class_name = ''
 
                     if (user.status != "") {
-                        state = user.status.split("_");
+                        state = user.status.split("_")
 
                         switch (state[0]) {
-                            case 'Logged In': class_name = 'btn-default';
-                                break;
-                            case 'Logged Out': class_name = 'btn-light';
-                                break;
+                            case 'Logged In': class_name = 'btn-default'
+                                break
+                            case 'Logged Out': class_name = 'btn-light'
+                                break
                         }
                     }
 
-                    counter++;
+                    counter++
                     user_list += `<tr>
             <td>${user.fullname}</td>
             <td>${user.username}</td>
             <td class="${class_name}">${state.length > 0 ? state[0] : ''} <br><span style="font-size: 11px;"> ${state.length > 0 ? moment(state[1]).format('hh:mm A DD MMM YYYY') : ''}</span></td>
-            <td>${user._id == 1 ? '<span class="btn-group"><button class="btn btn-dark"><i class="fa fa-pencil"></i></button><button class="btn btn-dark"><i class="fa fa-trash"></i></button></span>' : '<span class="btn-group"><button onClick="$(this).editUser(' + index + ')" class="btn btn-warning"><i class="fa fa-pencil"></i></button><button onClick="$(this).deleteUser(' + user._id + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button></span>'}</td></tr>`;
+            <td>${user._id == 1 ? '<span class="btn-group"><button class="btn btn-dark"><i class="fa fa-pencil"></i></button><button class="btn btn-dark"><i class="fa fa-trash"></i></button></span>' : '<span class="btn-group"><button onClick="$(this).editUser(' + index + ')" class="btn btn-warning"><i class="fa fa-pencil"></i></button><button onClick="$(this).deleteUser(' + user._id + ')" class="btn btn-danger"><i class="fa fa-trash"></i></button></span>'}</td></tr>`
 
                     if (counter == users.length) {
 
-                        $('#user_list').html(user_list);
+                        $('#user_list').html(user_list)
 
                         $('#userList').DataTable({
                             "order": [[1, "desc"]]
@@ -1488,27 +1488,27 @@ if (auth == undefined) {
                             , "JQueryUI": true
                             , "ordering": true
                             , "paging": false
-                        });
+                        })
                     }
 
-                });
+                })
 
-            });
+            })
         }
 
 
         function loadProductList() {
-            let products = [...allProducts];
-            let product_list = '';
-            let counter = 0;
-            $('#product_list').empty();
-            $('#productList').DataTable().destroy();
+            let products = [...allProducts]
+            let product_list = ''
+            let counter = 0
+            $('#product_list').empty()
+            $('#productList').DataTable().destroy()
 
             products.forEach((product, index) => {
 
-                counter++;
+                counter++
 
-                let category = allCategories.filter(category => category._id == product.category);
+                let category = allCategories.filter(category => category._id == product.category)
 
 
                 product_list += `<tr>
@@ -1519,21 +1519,21 @@ if (auth == undefined) {
             <td>${product.price}${settings.symbol}</td>
             <td>${product.stock == 1 ? product.quantity : 'N/A'}</td>
             <td>${category.length > 0 ? category[0].name : ''}</td>
-            <td class="nobr"><span class="btn-group"><button onClick="$(this).editProduct(${index})" class="btn btn-warning btn-sm"><i class="fa fa-pencil"></i></button><button onClick="$(this).deleteProduct(${product._id})" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button></span></td></tr>`;
+            <td class="nobr"><span class="btn-group"><button onClick="$(this).editProduct(${index})" class="btn btn-warning btn-sm"><i class="fa fa-pencil"></i></button><button onClick="$(this).deleteProduct(${product._id})" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button></span></td></tr>`
 
                 if (counter == allProducts.length) {
 
-                    $('#product_list').html(product_list);
+                    $('#product_list').html(product_list)
 
                     products.forEach(pro => {
                         $("#" + pro._id + "").JsBarcode(pro._id, {
                             width: 2,
                             height: 25,
                             fontSize: 14
-                        });
-                    });
+                        })
+                    })
 
-                    $('#productList input[name="check_all"]').on('change', function () { $(this).closest('table').find('input[type="checkbox"]:not(:disabled)').prop('checked', $(this).prop('checked')); });
+                    $('#productList input[name="check_all"]').on('change', function () { $(this).closest('table').find('input[type="checkbox"]:not(:disabled)').prop('checked', $(this).prop('checked')); })
                     let table = $('#productList').DataTable({
                         "order": [[1, "desc"]]
                         , "autoWidth": false
@@ -1583,12 +1583,12 @@ if (auth == undefined) {
                                     })
                                     document.body.appendChild(Products)
                                     html2canvas($('#products')[0]).then(canvas => {
-                                        var link = document.createElement("a");
-                                        document.body.appendChild(link);
-                                        link.download = "products.png";
-                                        link.href = canvas.toDataURL();
-                                        link.target = '_blank';
-                                        link.click();
+                                        var link = document.createElement("a")
+                                        document.body.appendChild(link)
+                                        link.download = "products.png"
+                                        link.href = canvas.toDataURL()
+                                        link.target = '_blank'
+                                        link.click()
                                         console.log(document.querySelector('#products'))
                                         $('#products').remove()
                                     })
@@ -1600,30 +1600,30 @@ if (auth == undefined) {
                     })
                 }
 
-            });
+            })
         }
 
 
         function loadCategoryList() {
 
-            let category_list = '';
-            let counter = 0;
-            $('#category_list').empty();
-            $('#categoryList').DataTable().destroy();
+            let category_list = ''
+            let counter = 0
+            $('#category_list').empty()
+            $('#categoryList').DataTable().destroy()
 
             allCategories.forEach((category, index) => {
 
-                counter++;
+                counter++
 
                 category_list += `<tr>
      
             <td>${category.name}</td>
-            <td><span class="btn-group"><button onClick="$(this).editCategory(${index})" class="btn btn-warning"><i class="fa fa-pencil"></i></button><button onClick="$(this).deleteCategory(${category._id})" class="btn btn-danger"><i class="fa fa-trash"></i></button></span></td></tr>`;
-            });
+            <td><span class="btn-group"><button onClick="$(this).editCategory(${index})" class="btn btn-warning"><i class="fa fa-pencil"></i></button><button onClick="$(this).deleteCategory(${category._id})" class="btn btn-danger"><i class="fa fa-trash"></i></button></span></td></tr>`
+            })
 
             if (counter == allCategories.length) {
 
-                $('#category_list').html(category_list);
+                $('#category_list').html(category_list)
                 $('#categoryList').DataTable({
                     "autoWidth": false
                     , "info": true
@@ -1631,26 +1631,26 @@ if (auth == undefined) {
                     , "ordering": true
                     , "paging": false
 
-                });
+                })
             }
         }
 
 
         $.fn.serializeObject = function () {
-            var o = {};
-            var a = this.serializeArray();
+            var o = {}
+            var a = this.serializeArray()
             $.each(a, function () {
                 if (o[this.name]) {
                     if (!o[this.name].push) {
-                        o[this.name] = [o[this.name]];
+                        o[this.name] = [o[this.name]]
                     }
-                    o[this.name].push(this.value || '');
+                    o[this.name].push(this.value || '')
                 } else {
-                    o[this.name] = this.value || '';
+                    o[this.name] = this.value || ''
                 }
-            });
-            return o;
-        };
+            })
+            return o
+        }
 
 
 
@@ -1668,101 +1668,101 @@ if (auth == undefined) {
 
                 if (result.value) {
                     $.get(api + 'users/logout/' + user._id, function (data) {
-                        storage.delete('auth');
-                        storage.delete('user');
-                        ipcRenderer.send('app-reload', '');
-                    });
+                        storage.delete('auth')
+                        storage.delete('user')
+                        ipcRenderer.send('app-reload', '')
+                    })
                 }
-            });
-        });
+            })
+        })
 
 
 
         $('#settings_form').on('submit', function (e) {
-            e.preventDefault();
-            let formData = $(this).serializeObject();
-            let mac_address;
+            e.preventDefault()
+            let formData = $(this).serializeObject()
+            let mac_address
 
-            api = 'http://' + host + ':' + port + '/api/';
+            api = 'http://' + host + ':' + port + '/api/'
 
             macaddress.one(function (err, mac) {
-                mac_address = mac;
-            });
+                mac_address = mac
+            })
 
-            formData['app'] = $('#app').find('option:selected').text();
-            formData['mac'] = mac_address;
-            formData['till'] = 1;
+            formData['app'] = $('#app').find('option:selected').text()
+            formData['mac'] = mac_address
+            formData['till'] = 1
 
-            $('#settings_form').append('<input type="hidden" name="app" value="' + formData.app + '" />');
+            $('#settings_form').append('<input type="hidden" name="app" value="' + formData.app + '" />')
 
             if (formData.percentage != "" && !$.isNumeric(formData.percentage)) {
                 new Alert(
                     'Oops!',
                     'Please make sure the tax value is a number',
                     'warning'
-                );
+                )
             }
             else {
-                storage.set('settings', formData);
+                storage.set('settings', formData)
 
-                $(this).attr('action', api + 'settings/post');
-                $(this).attr('method', 'POST');
+                $(this).attr('action', api + 'settings/post')
+                $(this).attr('method', 'POST')
 
 
                 $(this).ajaxSubmit({
                     contentType: 'application/json',
                     success: function (response) {
 
-                        ipcRenderer.send('app-reload', '');
+                        ipcRenderer.send('app-reload', '')
 
                     }, error: function (data) {
-                        console.log(data);
+                        console.log(data)
                     }
 
-                });
+                })
 
             }
 
-        });
+        })
 
 
 
         $('#net_settings_form').on('submit', function (e) {
-            e.preventDefault();
-            let formData = $(this).serializeObject();
+            e.preventDefault()
+            let formData = $(this).serializeObject()
 
             if (formData.till == 0 || formData.till == 1) {
                 new Alert(
                     'Oops!',
                     'Please enter a number greater than 1.',
                     'warning'
-                );
+                )
             }
             else {
                 if (isNumeric(formData.till)) {
-                    formData['app'] = $('#app').find('option:selected').text();
-                    storage.set('settings', formData);
-                    ipcRenderer.send('app-reload', '');
+                    formData['app'] = $('#app').find('option:selected').text()
+                    storage.set('settings', formData)
+                    ipcRenderer.send('app-reload', '')
                 }
                 else {
                     new Alert(
                         'Oops!',
                         'Till number must be a number!',
                         'warning'
-                    );
+                    )
                 }
 
             }
 
-        });
+        })
 
 
 
         $('#saveUser').on('submit', function (e) {
-            e.preventDefault();
-            let formData = $(this).serializeObject();
+            e.preventDefault()
+            let formData = $(this).serializeObject()
 
-            console.log(formData);
+            console.log(formData)
 
             if (ownUserEdit) {
                 if (formData.password != atob(user.password)) {
@@ -1771,7 +1771,7 @@ if (auth == undefined) {
                             'Oops!',
                             'Passwords do not match!',
                             'warning'
-                        );
+                        )
                     }
                 }
             }
@@ -1782,7 +1782,7 @@ if (auth == undefined) {
                             'Oops!',
                             'Passwords do not match!',
                             'warning'
-                        );
+                        )
                     }
                 }
             }
@@ -1800,128 +1800,128 @@ if (auth == undefined) {
                     success: function (data) {
 
                         if (ownUserEdit) {
-                            ipcRenderer.send('app-reload', '');
+                            ipcRenderer.send('app-reload', '')
                         }
 
                         else {
-                            $('#userModal').modal('hide');
+                            $('#userModal').modal('hide')
 
-                            loadUserList();
+                            loadUserList()
 
-                            $('#Users').modal('show');
+                            $('#Users').modal('show')
                             new Alert(
                                 'Ok!',
                                 'User details saved!',
                                 'success'
-                            );
+                            )
                         }
 
 
                     }, error: function (data) {
-                        console.log(data);
+                        console.log(data)
                     }
 
-                });
+                })
 
             }
 
-        });
+        })
 
 
 
         $('#app').change(function () {
             if ($(this).find('option:selected').text() == 'Network Point of Sale Terminal') {
-                $('#net_settings_form').show(500);
-                $('#settings_form').hide(500);
+                $('#net_settings_form').show(500)
+                $('#settings_form').hide(500)
                 macaddress.one(function (err, mac) {
-                    $("#mac").val(mac);
-                });
+                    $("#mac").val(mac)
+                })
             }
             else {
-                $('#net_settings_form').hide(500);
-                $('#settings_form').show(500);
+                $('#net_settings_form').hide(500)
+                $('#settings_form').show(500)
             }
 
-        });
+        })
 
 
 
         $('#cashier').click(function () {
 
-            ownUserEdit = true;
+            ownUserEdit = true
 
-            $('#userModal').modal('show');
+            $('#userModal').modal('show')
 
-            $("#user_id").val(user._id);
-            $("#fullname").val(user.fullname);
-            $("#username").val(user.username);
-            $("#password").val(atob(user.password));
+            $("#user_id").val(user._id)
+            $("#fullname").val(user.fullname)
+            $("#username").val(user.username)
+            $("#password").val(atob(user.password))
 
-        });
+        })
 
 
 
         $('#add-user').click(function () {
 
 
-            $("#saveUser").get(0).reset();
-            $('#userModal').modal('show');
+            $("#saveUser").get(0).reset()
+            $('#userModal').modal('show')
 
-        });
+        })
 
 
 
         $('#settings').click(function () {
 
-                $('#net_settings_form').hide(500);
-                $('#settings_form').show(500);
+                $('#net_settings_form').hide(500)
+                $('#settings_form').show(500)
 
-                $("#settings_id").val("1");
-                $("#store").val(settings.store);
-                $("#address_one").val(settings.address_one);
-                $("#address_two").val(settings.address_two);
-                $("#contact").val(settings.contact);
-                $("#tax").val(settings.tax);
-                $("#symbol").val(settings.symbol);
-                $("#percentage").val(settings.percentage);
-                $("#footer").val(settings.footer);
-                $("#logo_img").val(settings.img);
+                $("#settings_id").val("1")
+                $("#store").val(settings.store)
+                $("#address_one").val(settings.address_one)
+                $("#address_two").val(settings.address_two)
+                $("#contact").val(settings.contact)
+                $("#tax").val(settings.tax)
+                $("#symbol").val(settings.symbol)
+                $("#percentage").val(settings.percentage)
+                $("#footer").val(settings.footer)
+                $("#logo_img").val(settings.img)
                 if (settings.charge_tax == 'on') {
-                    $('#charge_tax').prop("checked", true);
+                    $('#charge_tax').prop("checked", true)
                 }
                 if (settings.img != "") {
-                    $('#logoname').hide();
-                    $('#current_logo').html(`<img src="${img_path + settings.img}" alt="">`);
-                    $('#rmv_logo').show();
+                    $('#logoname').hide()
+                    $('#current_logo').html(`<img src="${img_path + settings.img}" alt="">`)
+                    $('#rmv_logo').show()
                 }
 
                 $("#app option").filter(function () {
-                    return $(this).text() == settings.app;
-                }).prop("selected", true);
+                    return $(this).text() == settings.app
+                }).prop("selected", true)
 
 
 
 
-        });
+        })
 
 
-    });
+    })
 
 
     $('#rmv_logo').click(function () {
-        $('#remove_logo').val("1");
-        $('#current_logo').hide(500);
-        $(this).hide(500);
-        $('#logoname').show(500);
-    });
+        $('#remove_logo').val("1")
+        $('#current_logo').hide(500)
+        $(this).hide(500)
+        $('#logoname').show(500)
+    })
 
 
     $('#rmv_img').click(function () {
-        $('#remove_img').val("1");
-        $('#current_img').hide(500);
-        $(this).hide(500);
-        $('#imagename').show(500);
-    });
+        $('#remove_img').val("1")
+        $('#current_img').hide(500)
+        $(this).hide(500)
+        $('#imagename').show(500)
+    })
 
 
 
@@ -1930,57 +1930,57 @@ if (auth == undefined) {
 
 $.fn.print = function () {
 
-    printJS({ printable: receipt, type: 'raw-html' });
+    printJS({ printable: receipt, type: 'raw-html' })
 
 }
 
 
 function loadTransactions() {
 
-    let tills = [];
-    let users = [];
-    let sales = 0;
-    let transact_ = 0;
-    let unique = 0;
+    let tills = []
+    let users = []
+    let sales = 0
+    let transact_ = 0
+    let unique = 0
 
-    sold_items = [];
-    sold = [];
+    sold_items = []
+    sold = []
 
-    let counter = 0;
-    let transaction_list = '';
-    let query = `by-date?start=${start_date}&end=${end_date}&user=${by_user}${by_status ? `&status=${by_status}` : ``}&till=${by_till}`;
+    let counter = 0
+    let transaction_list = ''
+    let query = `by-date?start=${start_date}&end=${end_date}&user=${by_user}${by_status ? `&status=${by_status}` : ``}&till=${by_till}`
     
     $.get(api + query, function (transactions) {
 
         if (transactions.length > 0) {
 
 
-            $('#transaction_list').empty();
-            $('#transactionList').DataTable().destroy();
+            $('#transaction_list').empty()
+            $('#transactionList').DataTable().destroy()
 
-            allTransactions = [...transactions];
+            allTransactions = [...transactions]
 
             transactions.forEach((transact, index) => {
 
-                sales += Number(transact.total);
-                transact_++;
+                sales += Number(transact.total)
+                transact_++
 
 
 
                 transact.items.forEach(item => {
-                    sold_items.push(item);
-                });
+                    sold_items.push(item)
+                })
 
 
                 if (!tills.includes(transact.till)) {
-                    tills.push(transact.till);
+                    tills.push(transact.till)
                 }
 
                 if (!users.includes(transact.user_id)) {
-                    users.push(transact.user_id);
+                    users.push(transact.user_id)
                 }
 
-                counter++;
+                counter++
                 transaction_list += `<tr>
                                 <td class=nobr>${moment(transact.date).format('YYYY MM DD hh:mm:ss')}</td>
                                 <td>${transact.total + settings.symbol}</td>
@@ -1993,50 +1993,50 @@ function loadTransactions() {
                                    <button class='btn btn-sm btn-danger' onclick='$.ajax({ url: "${api+transact._id}", type: "DELETE"}); location.reload(true);'><i class='fa fa-times'></i></button>
                                 </td>
                                 </tr>
-                                `;
+                                `
 
                 if (counter == transactions.length) {
 
-                    $('#total_sales #counter').text(sales + settings.symbol);
+                    $('#total_sales #counter').text(sales + settings.symbol)
 
-                    const result = {};
+                    const result = {}
 
                     for (const { product_name, price, quantity, id } of sold_items) {
-                        if (!result[product_name]) result[product_name] = [];
-                        result[product_name].push({ id, price, quantity });
+                        if (!result[product_name]) result[product_name] = []
+                        result[product_name].push({ id, price, quantity })
                     }
 
                     for (item in result) {
 
-                        let price = 0;
-                        let quantity = 0;
-                        let id = 0;
+                        let price = 0
+                        let quantity = 0
+                        let id = 0
 
                         result[item].forEach(i => {
-                            id = i.id;
-                            price = i.price;
-                            quantity += i.quantity;
-                        });
+                            id = i.id
+                            price = i.price
+                            quantity += i.quantity
+                        })
 
                         sold.push({
                             id: id,
                             product: item,
                             qty: quantity,
                             price: price
-                        });
+                        })
                     }
 
-                    loadSoldProducts();
+                    loadSoldProducts()
 
 
                     if (by_user == 0 && by_till == 0) {
 
-                        userFilter(users);
-                        tillFilter(tills);
+                        userFilter(users)
+                        tillFilter(tills)
                     }
 
 
-                    $('#transaction_list').html(transaction_list);
+                    $('#transaction_list').html(transaction_list)
                     $('#transactionList').DataTable({
                         "order": [[0, "desc"]]
                         , "info": true
@@ -2046,97 +2046,97 @@ function loadTransactions() {
                         "dom": 'Bfrtip',
                         "buttons": ['csv', 'excel', 'pdf',]
 
-                    });
+                    })
                 }
-            });
+            })
         }
         else {
             new Alert(
                 'No data!',
                 'No transactions available within the selected criteria',
                 'warning'
-            );
+            )
         }
 
-    });
+    })
 }
 
 
 function loadSoldProducts() {
 
-    sold.sort((a, b) => a.qty > b.qty ? -1 : a.qty < b.qty ? 1 : 0);
+    sold.sort((a, b) => a.qty > b.qty ? -1 : a.qty < b.qty ? 1 : 0)
 
-    let counter = 0;
-    let sold_list = '';
-    let items = 0;
-    let products = 0;
-    $('#product_sales').empty();
+    let counter = 0
+    let sold_list = ''
+    let items = 0
+    let products = 0
+    $('#product_sales').empty()
 
     sold.forEach((item, index) => {
 
-        items += item.qty;
-        products++;
+        items += item.qty
+        products++
 
         let product = allProducts.filter(function (selected) {
-            return selected._id == item.id;
-        });
+            return selected._id == item.id
+        })
 
-        counter++;
+        counter++
 
         sold_list += `<tr>
             <td>${item.product}</td>
             <td>${item.qty}</td>
             <td>${product[0].stock == 1 ? product.length > 0 ? product[0].quantity : '' : 'N/A'}</td>
             <td>${(item.qty * Number(item.price)) + settings.symbol}</td>
-            </tr>`;
+            </tr>`
 
         if (counter == sold.length) {
-            $('#total_items #counter').text(counter);
-            $('#total_products #counter').text(products);
-            $('#product_sales').html(sold_list);
+            $('#total_items #counter').text(counter)
+            $('#total_products #counter').text(products)
+            $('#product_sales').html(sold_list)
         }
-    });
+    })
 }
 
 
 function userFilter(users) {
 
-    $('#users').empty();
-    $('#users').append(`<option value="0">All</option>`);
+    $('#users').empty()
+    $('#users').append(`<option value="0">All</option>`)
 
     users.forEach(user => {
         let u = allUsers.filter(function (usr) {
-            return usr._id == user;
-        });
+            return usr._id == user
+        })
 
-        $('#users').append(`<option value="${user}">${u[0].fullname}</option>`);
-    });
+        $('#users').append(`<option value="${user}">${u[0].fullname}</option>`)
+    })
 
 }
 
 
 function tillFilter(tills) {
 
-    $('#tills').empty();
-    $('#tills').append(`<option value="0">All</option>`);
+    $('#tills').empty()
+    $('#tills').append(`<option value="0">All</option>`)
     tills.forEach(till => {
-        $('#tills').append(`<option value="${till}">${till}</option>`);
-    });
+        $('#tills').append(`<option value="${till}">${till}</option>`)
+    })
 
 }
 
 $.fn.editTransaction = (index) => {
     $('#pointofsale').click()
-    transaction_index = index;
-    $('#refNumber').val(allTransactions[index].ref_number);
+    transaction_index = index
+    $('#refNumber').val(allTransactions[index].ref_number)
     $('#paid').text(allTransactions[index].paid)
     $('#change').text(allTransactions[index].change)
-    $("#customer option:selected").removeAttr('selected');
+    $("#customer option:selected").removeAttr('selected')
     $("#customer option").filter(function () {
-        return $(this).text() == allTransactions[index].customer.name;
-    }).prop("selected", true);
-    holdOrder = allTransactions[index]._id;
-    cart = [];
+        return $(this).text() == allTransactions[index].customer.name
+    }).prop("selected", true)
+    holdOrder = allTransactions[index]._id
+    cart = []
     $.each(allTransactions[index].items, function (index, product) {
         item = {
             id: product.id,
@@ -2144,16 +2144,16 @@ $.fn.editTransaction = (index) => {
             sku: product.sku,
             price: product.price,
             quantity: product.quantity
-        };
-        cart.push(item);
+        }
+        cart.push(item)
     })
-    $(this).renderTable(cart);
-    $("#holdOrdersModal").modal('hide');
-    $("#customerModal").modal('hide');
+    $(this).renderTable(cart)
+    $("#holdOrdersModal").modal('hide')
+    $("#customerModal").modal('hide')
 }
 $.fn.viewTransaction = (index) => {
 
-    transaction_index = index;
+    transaction_index = index
 
     receipt = `<div style="font-size: 10px;">                            
         <p style="text-align: center;">
@@ -2236,46 +2236,46 @@ $.fn.viewTransaction = (index) => {
         <p style="text-align: center;">
          ${settings.footer}
          </p>
-        </div>`;
+        </div>`
 
-    $('#viewTransaction').html('');
-    $('#viewTransaction').html(receipt);
+    $('#viewTransaction').html('')
+    $('#viewTransaction').html(receipt)
 
-    $('#orderModal').modal('show');
+    $('#orderModal').modal('show')
 
 }
 
 
 $('#status').change(function () {
-    by_status = $(this).find('option:selected').val();
-    loadTransactions();
-});
+    by_status = $(this).find('option:selected').val()
+    loadTransactions()
+})
 
 
 
 $('#tills').change(function () {
-    by_till = $(this).find('option:selected').val();
-    loadTransactions();
-});
+    by_till = $(this).find('option:selected').val()
+    loadTransactions()
+})
 
 
 $('#users').change(function () {
-    by_user = $(this).find('option:selected').val();
-    loadTransactions();
-});
+    by_user = $(this).find('option:selected').val()
+    loadTransactions()
+})
 
 
 $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
 
-    start = picker.startDate.format('DD MMM YYYY hh:mm A');
-    end = picker.endDate.format('DD MMM YYYY hh:mm A');
+    start = picker.startDate.format('DD MMM YYYY hh:mm A')
+    end = picker.endDate.format('DD MMM YYYY hh:mm A')
 
-    start_date = picker.startDate.toDate().toJSON();
-    end_date = picker.endDate.toDate().toJSON();
+    start_date = picker.startDate.toDate().toJSON()
+    end_date = picker.endDate.toDate().toJSON()
 
 
-    loadTransactions();
-});
+    loadTransactions()
+})
 
 
 function authenticate() {
@@ -2283,13 +2283,13 @@ function authenticate() {
         `<div id="load"><form id="account"><div class="form-group"><input type="text" placeholder="Username" name="username" class="form-control"></div>
         <div class="form-group"><input type="password" placeholder="Password" name="password" class="form-control"></div>
         <div class="form-group"><input type="submit" class="btn btn-block btn-default" value="Login"></div></form>`
-    );
+    )
 }
 
 
 $('body').on("submit", "#account", function (e) {
-    e.preventDefault();
-    let formData = $(this).serializeObject();
+    e.preventDefault()
+    let formData = $(this).serializeObject()
 
     if (formData.username == "" || formData.password == "") {
 
@@ -2297,7 +2297,7 @@ $('body').on("submit", "#account", function (e) {
             'Incomplete form!',
             auth_empty,
             'warning'
-        );
+        )
     }
     else {
 
@@ -2310,24 +2310,24 @@ $('body').on("submit", "#account", function (e) {
             processData: false,
             success: function (data) {
                 if (data._id) {
-                    storage.set('auth', { auth: true });
-                    storage.set('user', data);
-                    ipcRenderer.send('app-reload', '');
+                    storage.set('auth', { auth: true })
+                    storage.set('user', data)
+                    ipcRenderer.send('app-reload', '')
                 }
                 else {
                     new Alert(
                         'Oops!',
                         auth_error,
                         'warning'
-                    );
+                    )
                 }
 
             }, error: function (data) {
-                console.log(data);
+                console.log(data)
             }
-        });
+        })
     }
-});
+})
 
 
 $('#quit').click(function () {
@@ -2342,109 +2342,109 @@ $('#quit').click(function () {
     }).then((result) => {
 
         if (result.value) {
-            ipcRenderer.send('app-quit', '');
+            ipcRenderer.send('app-quit', '')
         }
-    });
-});
+    })
+})
 
 $('#categories').on('click', '.btn-categories', function(){
 
     if (this.id == 'all') {
-        $('#parent > div').fadeIn(450);
+        $('#parent > div').fadeIn(450)
     } else {
-        var $el = $('.' + this.id).fadeIn(450);
-        $('#parent > div').not($el).hide();
+        var $el = $('.' + this.id).fadeIn(450)
+        $('#parent > div').not($el).hide()
     }
 
-    $("#categories .btn-categories").removeClass("active");
-    $(this).addClass('active');
+    $("#categories .btn-categories").removeClass("active")
+    $(this).addClass('active')
 
-});
+})
 
 
 function searchProducts () {        
-    $("#categories .btn-categories").removeClass("active");
-    var matcher = new RegExp($("#search").val(), 'gi');
+    $("#categories .btn-categories").removeClass("active")
+    var matcher = new RegExp($("#search").val(), 'gi')
     $('.box').show().not(function(){
         return matcher.test($(this).find('.name, .sku').text())
-    }).hide();
+    }).hide()
     $('.box').length == 1 && $('.box.sku').val() == $('#search').val() ? {} : {}
 }
 
 let $search = $("#search").on('input',function(){
     searchProducts();       
-});
+})
 
 
 function searchOpenOrders() {
     $('.order').show().not(function(){
         return $(this).find('.ref_number').text().toLowerCase().includes($("#holdOrderInput").val().toLowerCase())
-    }).hide();
+    }).hide()
 }
 
 var $searchHoldOrder = $("#holdOrderInput").on('input',function () {
-    searchOpenOrders();
-});
+    searchOpenOrders()
+})
 
 
 $('body').on('click', '.holdOrderKeyboard .key', function() {
     if($("#holdOrderInput").is(":focus")) {
         searchOpenOrders(); 
     }          
-});
+})
 
 
 function searchCustomerOrders() {
-    var matcher = new RegExp($("#holdCustomerOrderInput").val(), 'gi');
+    var matcher = new RegExp($("#holdCustomerOrderInput").val(), 'gi')
     $('.customer-order').show().not(function(){
         return matcher.test($(this).find('.customer_name').text())
-    }).hide();
+    }).hide()
 }
 
 var $searchCustomerOrder = $("#holdCustomerOrderInput").on('input',function () {
-    searchCustomerOrders();
-});
+    searchCustomerOrders()
+})
 
 
 $('body').on('click', '.customerOrderKeyboard .key', function() {
     if($("#holdCustomerOrderInput").is(":focus")) {
-        searchCustomerOrders();
+        searchCustomerOrders()
     }          
-});
+})
 
 
 var $list = $('.list-group-item').click(function () {
-   $list.removeClass('active');
-   $(this).addClass('active');
+   $list.removeClass('active')
+   $(this).addClass('active')
    if(this.id == 'check'){
-        $("#cardInfo").show();
-        $("#cardInfo .input-group-addon").text("Check Info");
+        $("#cardInfo").show()
+        $("#cardInfo .input-group-addon").text("Check Info")
    }else if(this.id == 'card'){
-       $("#cardInfo").show();
-       $("#cardInfo .input-group-addon").text("Card Info");
+       $("#cardInfo").show()
+       $("#cardInfo .input-group-addon").text("Card Info")
    }else if(this.id == 'cash'){
-       $("#cardInfo").hide();
+       $("#cardInfo").hide()
    }
-});
+})
 
 
 $.fn.go = function (value,isDueInput) {
     if(isDueInput){
         $("#refNumber").val($("#refNumber").val()+""+value)
     }else{
-        $("#payment").val($("#payment").val()+""+value);
-        $(this).calculateChange();
+        $("#payment").val($("#payment").val()+""+value)
+        $(this).calculateChange()
     }
 }
 
 
 $.fn.digits = function(){
-    $("#payment").val($("#payment").val()+".");
-    $(this).calculateChange();
+    $("#payment").val($("#payment").val()+".")
+    $(this).calculateChange()
 }
 
 $.fn.calculateChange = function () {
-    $('#change').text(Number($('#payablePrice').val()) - (Number($('#payment').val()) + Number($('#paid').text())));
+    $('#change').text(Number($('#payablePrice').val()) - (Number($('#payment').val()) + Number($('#paid').text())))
 }
 
 function version ($1) {
