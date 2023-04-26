@@ -2427,7 +2427,6 @@ var $list = $('.list-group-item').click(function () {
    }
 })
 
-
 $.fn.go = function (value,isDueInput) {
     if(isDueInput){
         $("#refNumber").val($("#refNumber").val()+""+value)
