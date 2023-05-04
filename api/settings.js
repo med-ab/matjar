@@ -10,7 +10,6 @@ var os = require('os')
 var exec = require('child_process').spawnSync
 var v =(command)=> 
     exec('git', command.split(' ')).stdout.toString()?.trim()
-
 app.get('/version', (req, res) => {
     v('fetch')
     var {cwd,chdir} = process
@@ -38,27 +37,21 @@ app.patch('/version', function (req, res) {
     res.sendStatus(200)
     process.chdir(cwd)
 })
-
 var storage = multer.diskStorage({
     destination: process.env.APPDATA + '/POS/uploads',
     filename: function (req, file, callback) {
         callback(null, Date.now() + '.jpg')
     }
 })
-
 var upload = multer({ storage: storage })
-
 app.use(bodyParser.json())
-
 var settingsDB = new Datastore({
     filename: process.env.APPDATA + '/POS/server/databases/settings.db',
     autoload: true
 })
-
 app.get('/', function (req, res) {
     res.send('Settings API')
 })
-
 app.get('/get', function (req, res) {
     settingsDB.findOne({
         _id: 1
@@ -66,7 +59,6 @@ app.get('/get', function (req, res) {
         res.send(docs)
     })
 })
-
 app.post('/post', upload.single('imagename'), function (req, res) {
     var image = ''
     if (req.body.img != '') image = req.body.img
@@ -113,10 +105,7 @@ app.post('/post', upload.single('imagename'), function (req, res) {
             if (err) res.status(500).send(err)
             else res.sendStatus(200)
         })
-
     }
-
 })
-
 
 module.exports = app
