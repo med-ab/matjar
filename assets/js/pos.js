@@ -76,7 +76,7 @@ $("#updates").on('submit',function(event){
     event.preventDefault()
     $.ajax({
             type:'PATCH',
-            url:api+'settings/version&'+$('#updates').serialize()
+            url:api+'settings/version?'+$('#updates').serialize()
     })
     location.reload(true)
 })
